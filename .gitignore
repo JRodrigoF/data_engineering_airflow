@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Extracted original datafiles
+sourcedata/kym.json
+
+# macOS System files
+*.DS_Store
