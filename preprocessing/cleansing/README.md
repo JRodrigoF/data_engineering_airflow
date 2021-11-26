@@ -1,6 +1,6 @@
 # Initial cleansing scripts
 
-## remove_duplicates_kym.py
+### remove_duplicates_kym.py
 
 Removes duplicate entries from kym.json. Duplicates are indicated based on 'url' and 'last_update_source' attributes.
 
