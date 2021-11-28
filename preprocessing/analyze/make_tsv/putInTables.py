@@ -70,13 +70,13 @@ for d in memes_dict:
     #meme_keywords_rows
     for value in meme['_search_keywords']:
         if not len(meme_keywords_rows):
-            meme_tag_rows.append(['memeId', 'keyword'])
+            meme_keywords_rows.append(['memeId', 'keyword'])
         meme_keywords_rows.append([memeID, value])
 
     #_details_type
     for value in meme['_details_type']:
         if not len(meme_details_type_rows):
-            meme_tag_rows.append(['memeId', 'type'])
+            meme_details_type_rows.append(['memeId', 'type'])
         meme_details_type_rows.append([memeID, value])
     # multidimentional fields
 
