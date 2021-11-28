@@ -29,7 +29,8 @@ with open(filename,'r') as f:
 #https://stackoverflow.com/questions/60794316/print-get-full-path-of-every-nested-item-in-a-dictionary-python3
 memes_rows = []
 memes_keys = []
-
+#multi dimentional data keys
+memes_keys2 = []
 meme_tag_rows = []
 meme_keywords_rows = []
 meme_details_type_rows = []
@@ -45,16 +46,19 @@ for d in memes_dict:
     memes_row = []
     meme = memes_dict[d]
     memeID = meme['Id']
+
     if not len(memes_keys):
         all_keys_properties = meme.keys()
         for key in sorted(all_keys_properties):
             if not key.startswith('_'):
                 memes_keys.append(key)
             else:
-                print (key)
-        memes_rows.append(memes_keys)
+                memes_keys2.append(key)
+        memes_rows.append(memes_keys + ['total'+ key for key in memes_keys2])
     for key in memes_keys:
         memes_row.append(str(meme[key]))
+    for key in memes_keys2:
+        memes_row.append(str(len(meme[key])))
     memes_rows.append(memes_row)
 
     for value in meme['_tags']:
