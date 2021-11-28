@@ -70,7 +70,6 @@ for d in memes_dict:
     meme['_tags'] = []
     if 'tags' in memeO:
         meme['_tags'] = sorted(list(set(memeO['tags'])))
-
     #sep_table
     meme['_search_keywords'] = []
     if 'search_keywords' in memeO:
