@@ -10,4 +10,4 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
     Rodrigo
         .-  check why neither ninja nor template_searchpath worked in the
             bash operator
-        .-
+        .-  remove postgres sections from pipeline 1
