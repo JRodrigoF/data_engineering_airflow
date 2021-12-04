@@ -23,6 +23,7 @@ pipeline_1 = DAG(
     template_searchpath=DAGS_FOLDER,
 )
 
+#TODO
 task_one = BashOperator(
     task_id='remove_duplicates',
     dag=pipeline_1,

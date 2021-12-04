@@ -31,13 +31,3 @@ If the exit code is 0 then it's all good.
 ```sh
 docker-compose up
 ```
-
-After it is up, add a new connection:
-
-* Name - postgres_default
-* Conn type - postgres
-* Host - postgres
-* Port - 5432
-* Database - airflow
-* Username - airflow
-* Password - airflow
