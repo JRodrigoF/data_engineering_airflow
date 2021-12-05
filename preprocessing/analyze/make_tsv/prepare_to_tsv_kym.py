@@ -52,7 +52,7 @@ for d in memes_dict:
         elif 'og:description' in memeO['meta']:
             meme['meta_description'] = memeO['meta']['og:description']
         elif 'twitter:description' in memeO['meta']:
-            meme['meta_description'] = memeO['metatwitterog:description']
+            meme['meta_description'] = memeO['twitterog:description']
 
         meme['meta_title'] = memeO['meta']['og:title']
         meme['meta_image'] = urllib.parse.unquote(memeO['meta']['og:image'])
