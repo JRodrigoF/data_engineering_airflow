@@ -32,7 +32,7 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
         ..
     
     data models
-        design star squema
+        design star squema -> Liisi
         design graph-based
     
     presentation slides
