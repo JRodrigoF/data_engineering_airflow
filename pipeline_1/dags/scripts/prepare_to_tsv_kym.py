@@ -47,8 +47,8 @@ for d in memes_dict:
     if 'added' in memeO:
         meme['added'] = memeO['added']
 
+    # meme['meta_title'] = None
     meme['meta_description'] = None
-    meme['meta_title'] = None
     meme['meta_image'] = None
 
     if 'meta' in memeO:
@@ -116,6 +116,7 @@ for d in memes_dict:
 
             # else:
             #     meme['_content'][s] = section
+        meme['content']['examples'] = sorted(list(set(meme['content']['examples'])))
 
     if meme['Id'] in new_memes:
         sys.stderr.write('We have a problem with nonunique ID:', meme['id'])
