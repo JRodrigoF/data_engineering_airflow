@@ -16,25 +16,25 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
         ..
 
         (Augmentation)
-        from raw Google vision data -> create csv for ingestion
+        from raw Google vision data -> create csv for ingestion -> Liisi
         dandelion similarity table(s)
         LDATopics table(s)
         LDATopicKeywords table(s)
         ..
 
         (Ingestion)
-        Creation of postgres database according to star squema
-        ingestion of data/csv into postgres database according to star squema
-        Creation of neo4j database according to graph squema
-        ingestion of data/csv into neo4j database according to star squema
+        Creation of postgres database according to star schema -> Liisi
+        ingestion of data/csv into postgres database according to star schema -> Liisi
+        Creation of neo4j database according to graph schema
+        ingestion of data/csv into neo4j database according to star schema
         ..
 
         (Queries)
         ..
 
     data models
-        design star squema -> Liisi
-        design graph-based
+        design star schema -> Liisi
+        design graph-based -> Liisi could do, but not sure how exactly :)
 
     presentation slides
         (google slides)
