@@ -12,6 +12,7 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
         (Cleansing/transformation)
         take updated kym_unique_filter_1 -> create csv with Tags table for ingestion 
         take updated kym_unique_filter_1 -> create csv with Examples table for ingestion
+        new operator using katrin's script putinTables -> should produce already the file with core data for ingestion -> Rodrigo
         ..
         
         (Augmentation)
@@ -45,16 +46,11 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
         describes the design decision behind every pipeline step
 
     minor
+        update filter_1 operator to keep only memes category and status in ['confirmed', 'submission'] -> Rodrigo
         sign-up for early presentations
         rename 'Notable Examples' in schema to 'Examples'
-        
-    Rodrigo
-        .- update filter_1 operator to keep only memes category and status in ['confirmed', 'submission'] -> Rodrigo
-        .- new operator using katrin's script putinTables -> should produce already the file with core data for ingestion
-        
-        .- check why neither ninja nor template_searchpath worked in the
-           bash operator
-        .- remove postgres sections from pipeline 1
-        .- change some keys in the format "_id" -> "id" ?
-        .- make sure we are dropping _search_keywords
-        .- write a version of the 'combined_examples' using pattern matching from python 3.10
+        check why neither ninja nor template_searchpath worked in the bash operator
+        remove postgres sections from pipeline 1
+        change some keys in the format "_id" -> "id" ?
+        make sure we are dropping _search_keywords
+        write a version of the 'combined_examples' using pattern matching from python 3.10 -> R
