@@ -30,10 +30,13 @@ new_memes = {}
 for d in memes_dict:
     memeO = memes_dict[d]
     meme = {}
-    #urldecode
-    #TODO
-    # no category filtering until here
+    # Keeping only category 'meme'
+    # Keeping only status in ['confirmed', 'submission']
+    if memeO['category'] != 'Meme' or memeO['details']['status'] not in ['confirmed', 'submission']:
+        continue
+
     meme['category'] = memeO['category']
+    #urldecode
     meme['Id'] = urllib.parse.unquote(memeO['url'].replace('https://knowyourmeme.com/memes/',''))
     meme['title'] = memeO['title']
     meme['last_update_source'] = memeO['last_update_source']
@@ -55,27 +58,23 @@ for d in memes_dict:
             meme['meta_description'] = memeO['meta']['og:description']
         elif 'twitter:description' in memeO['meta']:
             meme['meta_description'] = memeO['meta']['twitter:description']
-        #TODO
-        # mete_title seems redundant with title
-        meme['meta_title'] = memeO['meta']['og:title']
+        # meme_title redundant with main title
+        # meme['meta_title'] = memeO['meta']['og:title']
         meme['meta_image'] = urllib.parse.unquote(memeO['meta']['og:image'])
 
-    #TODO
-    # check about the _id format
     meme['details_status'] = memeO['details']['status']
     meme['details_origin'] = memeO['details']['origin']
     meme['details_year'] = memeO['details']['year']
-    meme['_details_type'] = []
+    meme['details_type'] = []
     if 'type' in memeO['details']:
         for tp in memeO['details']['type']:
-            meme['_details_type'].append(tp.replace('https://knowyourmeme.com/types/', ''))
+            meme['details_type'].append(tp.replace('https://knowyourmeme.com/types/', ''))
 
     #sep_table
-    meme['_tags'] = []
+    meme['tags'] = []
     if 'tags' in memeO:
-        meme['_tags'] = sorted(list(set(memeO['tags'])))
+        meme['tags'] = sorted(list(set(memeO['tags'])))
 
-    #TODO
     # -> drop for now
     # sep_table
     # meme['_search_keywords'] = []
@@ -93,7 +92,7 @@ for d in memes_dict:
     # sec -> value
     #TODO
     # -> write a version of this step using pattern matching from python 3.10
-    meme['_content'] = {'_combined_examples': []}
+    meme['content'] = {'examples': []}
     if 'content' in memeO:
         for s in memeO['content']:
             # section = {'title': None, '_texts':[], '_links':[], '_images':[]}
@@ -113,7 +112,7 @@ for d in memes_dict:
             if s in ['notable examples', 'various examples', 'examples', 'notable images', 'example images']:
                 if 'images' in sec:
                     for it in sec['images']:
-                        meme['_content']['_combined_examples'].append(it)
+                        meme['content']['examples'].append(it)
 
             # else:
             #     meme['_content'][s] = section
