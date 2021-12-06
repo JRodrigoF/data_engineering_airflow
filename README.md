@@ -45,9 +45,9 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
         describes the design decision behind every pipeline step
 
     minor
+        sign-up for early presentations
         rename 'Notable Examples' in schema to 'Examples'
-    
-    
+        
     Rodrigo
         .- update filter_1 operator to keep only memes category and status in ['confirmed', 'submission'] -> Rodrigo
         .- new operator using katrin's script putinTables -> should produce already the file with core data for ingestion
