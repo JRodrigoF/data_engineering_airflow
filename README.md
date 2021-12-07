@@ -7,12 +7,9 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
 
 #### TODO
 
-    arflow operators
+    airflow operators
 
         (Cleansing/transformation)
-        take updated kym_unique_filter_1 -> create csv with Tags table for ingestion -> Rodrigo
-        take updated kym_unique_filter_1 -> create csv with Examples table for ingestion -> Rodrigo
-        new operator using katrin's script putinTables -> should produce already the file with core data for ingestion -> Rodrigo
         ..
 
         (Augmentation)

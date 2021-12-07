@@ -1,4 +1,5 @@
-import json
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-import json
 import sys
 import argparse
 import urllib.parse
@@ -65,15 +66,15 @@ for d in memes_dict:
     meme['details_status'] = memeO['details']['status']
     meme['details_origin'] = memeO['details']['origin']
     meme['details_year'] = memeO['details']['year']
-    meme['details_type'] = []
+    meme['_details_type'] = []
     if 'type' in memeO['details']:
         for tp in memeO['details']['type']:
-            meme['details_type'].append(tp.replace('https://knowyourmeme.com/types/', ''))
+            meme['_details_type'].append(tp.replace('https://knowyourmeme.com/types/', ''))
 
     #sep_table
-    meme['tags'] = []
+    meme['_tags'] = []
     if 'tags' in memeO:
-        meme['tags'] = sorted(list(set(memeO['tags'])))
+        meme['_tags'] = sorted(list(set(memeO['tags'])))
 
     # -> drop for now
     # sep_table
@@ -92,11 +93,10 @@ for d in memes_dict:
     # sec -> value
     #TODO
     # -> write a version of this step using pattern matching from python 3.10
-    meme['content'] = {'examples': []}
+    meme['_content'] = {'_examples': []}
     if 'content' in memeO:
         for s in memeO['content']:
             # section = {'title': None, '_texts':[], '_links':[], '_images':[]}
-            # section['title'] = s
             sec = memeO['content'][s]
 
             # if 'text' in sec:
@@ -112,11 +112,11 @@ for d in memes_dict:
             if s in ['notable examples', 'various examples', 'examples', 'notable images', 'example images']:
                 if 'images' in sec:
                     for it in sec['images']:
-                        meme['content']['examples'].append(it)
+                        meme['_content']['_examples'].append(it)
 
             # else:
             #     meme['_content'][s] = section
-        meme['content']['examples'] = sorted(list(set(meme['content']['examples'])))
+        meme['_content']['_examples'] = sorted(list(set(meme['_content']['_examples'])))
 
     if meme['Id'] in new_memes:
         sys.stderr.write('We have a problem with nonunique ID:', meme['id'])

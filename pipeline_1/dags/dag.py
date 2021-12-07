@@ -37,7 +37,14 @@ task_two = BashOperator(
     task_id='filtering_step_1',
     dag=pipeline_1,
     bash_command="python /opt/airflow/dags/scripts/prepare_to_tsv_kym.py --file /opt/airflow/dags/data/kym_unique.json --out /opt/airflow/dags/data/kym_unique_filter_1.json",
-    # bash_command="python {{ DAGS_FOLDER }}scripts/remove_duplicates_kym.py --file data/kym.json --out data/kym_unique.json",
+    trigger_rule='all_success',
+    depends_on_past=False,
+)
+
+task_three = BashOperator(
+    task_id='meme_data_to_csv',
+    dag=pipeline_1,
+    bash_command="python /opt/airflow/dags/scripts/data_to_tables.py --file /opt/airflow/dags/data/kym_unique_filter_1.json",
     trigger_rule='all_success',
     depends_on_past=False,
 )
@@ -48,5 +55,4 @@ end = DummyOperator(
     trigger_rule='none_failed'
 )
 
-task_one >> task_two >> end
-# task_one >> end
+task_one >> task_two >> task_three >> end
