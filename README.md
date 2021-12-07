@@ -17,7 +17,7 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
 
         (Augmentation)
         from raw Google vision data -> create csv for ingestion -> Liisi
-        dandelion similarity table(s)
+        dandelion similarity table(s) --> Katrin
         LDATopics table(s) --> Katrin
         LDATopicKeywords table(s) --> Katrin
         ..
