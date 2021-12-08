@@ -3,9 +3,9 @@
 
 Scipt calculates cosine similary score for _tags or meta_description fields.
 Result is stored in tsv file with following columns:
-  meme1
-  meme2
-  score
+  * meme1
+  * meme2
+  * score
 
 
 ### Usage example
@@ -30,7 +30,7 @@ Converting similarity matrix to dictionary...
 Calculate descriptions cosine _similarity_score
 
 ```
-python calculate_cos_similarity.py -f kym_prepared.json -t desc -l 0.1 -o memes_desc_similarity_score.tsv
+%python calculate_cos_similarity.py -f kym_prepared.json -t desc -l 0.1 -o memes_desc_similarity_score.tsv
 Read from kym_prepared.json.
 Total memes to compare: 8174
 
