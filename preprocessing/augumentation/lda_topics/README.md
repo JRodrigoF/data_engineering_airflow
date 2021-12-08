@@ -24,8 +24,8 @@ Result is stored in 3 tsv files file with following columns:
 
 
 Read from ../../../pipeline_1/dags/data/kym_unique_filter_1.json.
---- Writing lda_topic_keywords.tsv : 0.002290964126586914 seconds, 8174 rows ---
---- Writing lda_topics.tsv : 0.0009701251983642578 seconds, 8174 rows ---
---- Writing memes_lda_topics.tsv : 0.026425838470458984 seconds, 8174 rows ---
---- Script total execution time:  36.7732937335968 seconds ---
+--- Writing lda_topic_keywords.tsv : 0.0028600692749023438 seconds, 100 rows ---
+--- Writing lda_topics.tsv : 0.0021028518676757812 seconds, 11 rows ---
+--- Writing memes_lda_topics.tsv : 0.024268150329589844 seconds, 8174 rows ---
+--- Script total execution time:  31.204676151275635 seconds ---
 ```

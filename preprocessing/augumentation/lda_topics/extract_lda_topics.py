@@ -167,19 +167,19 @@ for j in range(df['Id'].shape[0]):
 writing_csv_start_time  = time.time()
 dfTopcsKeywords = pd.DataFrame(extracted_topic_keywords, columns=('topicId', 'keywords', 'keywordScores',))
 dfTopcsKeywords.to_csv(outkeywords, sep='\t', index = False)
-sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outkeywords,  time.time() - writing_csv_start_time, df.shape[0]))
+sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outkeywords,  time.time() - writing_csv_start_time, dfTopcsKeywords.shape[0]))
 
 
 writing_csv_start_time  = time.time()
 dfTopcs = pd.DataFrame(extracted_topics, columns=('topicId', 'topicName',))
 dfTopcs.to_csv(outtopics, sep='\t', index = False)
-sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outtopics,  time.time() - writing_csv_start_time, df.shape[0]))
+sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outtopics,  time.time() - writing_csv_start_time, dfTopcs.shape[0]))
 
 
 writing_csv_start_time  = time.time()
 dfMemesTopics = pd.DataFrame(memeTopics, columns=('Id', 'topicId', 'topicProbScore'))
 dfMemesTopics.to_csv(outmemes, sep='\t', index = False)
-sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outmemes,  time.time() - writing_csv_start_time, df.shape[0]))
+sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outmemes,  time.time() - writing_csv_start_time, dfMemesTopics.shape[0]))
 sys.stderr.write("--- Script total execution time:  %s seconds ---\n" % (time.time() - start_time))
 
 exit(0)
