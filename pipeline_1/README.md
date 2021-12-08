@@ -20,6 +20,11 @@ Run the following command to creat the volumes needed in order to send data to a
 mkdir -p ./logs ./plugins
 ```
 
+Extract nltk_data.tar.gz
+```sh
+tar -xf nltk_data.tar.gz
+```
+
 And this **once**:
 ```sh
 docker-compose up airflow-init

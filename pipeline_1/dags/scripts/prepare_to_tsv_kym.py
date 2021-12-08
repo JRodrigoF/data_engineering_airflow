@@ -3,7 +3,7 @@
 import sys
 import argparse
 import urllib.parse
-
+import json
 """
 Prepare kym.json data to put it in tsv
 """
