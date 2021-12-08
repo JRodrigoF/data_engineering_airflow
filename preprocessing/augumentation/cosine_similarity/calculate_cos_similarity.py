@@ -53,24 +53,26 @@ start_time = time.time()
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", "-f", type=str, required=True)
 parser.add_argument("--type", "-t", type=str, required=True)
-parser.add_argument("--threshold", "-l", type=float, required=False)
-parser.add_argument("--outputfile", "-o", type=str, required=False)
+parser.add_argument("--threshold", "-l", type=float, required=True)
+parser.add_argument("--out", "-o", type=str, required=False)
+
 args = parser.parse_args()
+
 
 filename = args.file
 type = args.type
-outputfile = args.outputfile
+outputfile = args.out
 threshold = args.threshold
-if not outputfile:
-    outputfile = f'memes_{type}_similarity_score.tsv'
+#if not outputfile:
+#    outputfile = f'"/opt/airflow/dags/data/memes_{type}_similarity_score.tsv'
 if not filename:
     sys.stderr.write("Error! No input file specified.\n")
-    exit()
+    exit(1)
 if not threshold:
     threshold = 0.0
 if not type in ['tag', 'desc']:
     sys.stderr.write("-t Type should be 'tag' or 'desc'.\n")
-    exit()
+    exit(1)
 
 sys.stderr.write(f"Read from {filename}.\n")
 
@@ -84,8 +86,6 @@ outputfilename = f'memes_similarity_score_{type}.tsv'
 cnt = 0
 memes_data = []
 for (id, meme) in memes_dict.items():
-    if not meme['category'] in 'Meme': continue
-    if not meme['details_status'] in ['submission', 'confirmed']: continue
     memes_data.append((meme['Id'], meme['meta_description'],' '.join(meme['_tags'])))
     #cnt+=1
     #if cnt>100:break
@@ -148,8 +148,10 @@ sys.stderr.write("--- Converting similarity sparse matrix to dictionary: %s seco
 
 writing_csv_start_time  = time.time()
 dfScores = pd.DataFrame.from_dict(result_table)
-dfScores.to_csv(outputfile, sep='\t')
+dfScores.to_csv(outputfile, sep='\t', index = False)
 
 sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outputfile,  time.time() - writing_csv_start_time, dfScores.shape[0]))
 
 sys.stderr.write("--- Script total execution time:  %s seconds ---\n" % (time.time() - start_time))
+
+exit(0)
