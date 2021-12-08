@@ -1,20 +1,20 @@
 
-## lda_topics.py
+## extract_lda_topics.py
 
 Scipt generates N (10) topics based on meme descriptions (LDA model).
 
 Result is stored in 3 tsv files file with following columns:
-  LDA topics file (lda_topics.tsv)
-    topicId
-    topicName
-  LDA topics keywords (lda_topic_keywords.tsv)
-    topicId
-    keyword
-    keywordScore
-  Memes LDA topics  (memes_lda_topics.tsv)
-    memeId
-    topicId
-    topicProbScore
+  * LDA topics file (lda_topics.tsv)
+    * topicId
+    * topicName
+  * LDA topics keywords (lda_topic_keywords.tsv)
+    * topicId
+    * keyword
+    * keywordScore
+  * Memes LDA topics  (memes_lda_topics.tsv)
+    * memeId
+    * topicId
+    * topicProbScore
 
 
 ### Usage example
