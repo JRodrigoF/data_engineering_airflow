@@ -19,6 +19,8 @@ output_memes = "/opt/airflow/dags/data/memes.tsv"
 output_tags = "/opt/airflow/dags/data/meme_tags.tsv"
 output_types = "/opt/airflow/dags/data/meme_details_types.tsv"
 output_examples = "/opt/airflow/dags/data/meme_content_examples.tsv"
+output_children = "/opt/airflow/dags/data/parent_children_relations.tsv"
+output_siblings = "/opt/airflow/dags/data/siblings_relations.tsv"
 
 if not filename:
     sys.stderr.write("Error! No input file specified.\n")
@@ -41,6 +43,10 @@ memes_mv_keys = []
 meme_tag_rows = []
 meme_details_type_rows = []
 meme_content_example_rows = []
+
+meme_children_rows = []
+meme_siblings_rows = []
+meme_siblings_data = {}
 
 for d in memes_dict:
     memes_row = []
@@ -66,10 +72,25 @@ for d in memes_dict:
     #     memes_row.append(str(len(meme[key])))
     memes_rows.append(memes_row)
 
+    # tags data
     for value in meme['_tags']:
         if not len(meme_tag_rows):
             meme_tag_rows.append(['memeId', 'tag'])
         meme_tag_rows.append([memeID, value])
+
+    # children data
+    if not len(meme_children_rows):
+        meme_children_rows.append(['memeId', 'child'])
+    else:
+        meme_children_rows.append([meme['parent'], memeID])
+
+    # siblings data collector
+    if meme['parent'] not in meme_siblings_data:
+        meme_siblings_data[meme['parent']] = [memeID]
+    else:
+        meme_siblings_data[meme['parent']].append(memeID)
+
+
 
     #_details_type
     for value in meme['_details_type']:
@@ -82,6 +103,7 @@ for d in memes_dict:
     #     if not len(meme_keywords_rows):
     #         meme_keywords_rows.append(['memeId', 'keyword'])
     #     meme_keywords_rows.append([memeID, value])
+
 
     #meme_content_rows
     for c in meme['_content']:
@@ -105,6 +127,16 @@ for d in memes_dict:
 
         # for img in content['_images']:
         #     meme_content_images_rows.append([memeID, title, img])
+
+# siblings rows
+for meme in meme_siblings_data:
+    if len(meme_siblings_data[meme]) > 1:
+        head_of_siblings = meme_siblings_data[meme].pop()
+
+        for sibling in meme_siblings_data[meme]:
+            if not len(meme_siblings_rows):
+                meme_siblings_rows.append(['memeID', 'sibling'])
+            meme_siblings_rows.append([head_of_siblings, sibling])
 
 import os
 try:
@@ -157,5 +189,17 @@ f.close()
 f = open(output_examples, 'w', encoding='UTF8')
 writer = csv.writer(f,  delimiter = "\t")
 for r in meme_content_example_rows:
+    writer.writerow(r)
+f.close()
+
+f = open(output_children, 'w', encoding='UTF8')
+writer = csv.writer(f,  delimiter = "\t")
+for r in meme_children_rows:
+    writer.writerow(r)
+f.close()
+
+f = open(output_siblings, 'w', encoding='UTF8')
+writer = csv.writer(f,  delimiter = "\t")
+for r in meme_siblings_rows:
     writer.writerow(r)
 f.close()
