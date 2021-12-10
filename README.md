@@ -43,8 +43,8 @@ https://docs.google.com/document/d/14JYqHhRvzPlYPleI7deWg6MC7dNq1EeLx6oO1mqdCVE
         describes the design decision behind every pipeline step
 
     minor
-        sign-up for early presentations
-        rename 'Notable Examples' in schema to 'Examples'
+        sign-up for early presentations - DONE
+        rename 'Notable Examples' in schema to 'Examples' - DONE
         check why neither ninja nor template_searchpath worked in the bash operator
         remove postgres sections from pipeline 1
         write a version of the 'combined_examples' using pattern matching from python 3.10 -> R
