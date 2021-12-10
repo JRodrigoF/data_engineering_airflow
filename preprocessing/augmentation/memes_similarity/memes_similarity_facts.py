@@ -8,8 +8,7 @@
         * number of common tags
         * tags cosine similarity (1.0 if tags are identical)
         * description cosine similarity
-
-
+        
     Writes result in tsv file with columns:
         meme1Id, meme2Id, common_tags, tags_similarity, desc_similarity
 

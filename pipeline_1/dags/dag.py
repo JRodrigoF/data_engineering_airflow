@@ -50,22 +50,15 @@ task_three_a = BashOperator(
 )
 
 task_three_b = BashOperator(
-    task_id='make_tags_cosine_similarity_csv',
+    task_id='make_meme_similarity_facts_csv',
     dag=pipeline_1,
-    bash_command= "python /opt/airflow/dags/scripts/calculate_cos_similarity.py --file /opt/airflow/dags/data/kym_unique_filter_1.json --type tag --threshold=0.1 --out /opt/airflow/dags/data/memes_tags_similarity_score.tsv ",
+    bash_command= "python /opt/airflow/dags/scripts/memes_similarity_facts.py --file /opt/airflow/dags/data/kym_unique_filter_1.json --threshold=0.2 --out /opt/airflow/dags/data/memes_similarity_score.tsv ",
     trigger_rule='all_success',
     depends_on_past=False,
 )
+
 
 task_three_c = BashOperator(
-    task_id='make_desc_cosine_similarity_csv',
-    dag=pipeline_1,
-    bash_command="python /opt/airflow/dags/scripts/calculate_cos_similarity.py --file /opt/airflow/dags/data/kym_unique_filter_1.json --type desc --threshold=0.1 --out /opt/airflow/dags/data/memes_desc_similarity_score.tsv ",
-    trigger_rule='all_success',
-    depends_on_past=False,
-)
-
-task_three_d = BashOperator(
     task_id='extract_lda_topics',
     dag=pipeline_1,
     bash_command = "python /opt/airflow/dags/scripts/extract_lda_topics.py --file /opt/airflow/dags/data/kym_unique_filter_1.json --outtopics /opt/airflow/dags/data/lda_topics.tsv --outmemes /opt/airflow/dags/data/memes_lda_topics.tsv --outkeywords /opt/airflow/dags/data/lda_topic_keywords.tsv",
@@ -80,4 +73,4 @@ end = DummyOperator(
 )
 
 #task_one >> task_two >> task_three >> end
-task_one >> task_two >> [task_three_a, task_three_b, task_three_c, task_three_d]>> end
+task_one >> task_two >> [task_three_a, task_three_b, task_three_c]>> end
