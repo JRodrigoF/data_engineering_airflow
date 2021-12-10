@@ -81,7 +81,7 @@ for d in memes_dict:
     # children data
     if not len(meme_children_rows):
         meme_children_rows.append(['memeId', 'child'])
-    else:
+    elif meme['parent'] != None:
         meme_children_rows.append([meme['parent'], memeID])
 
     # siblings data collector
@@ -89,8 +89,6 @@ for d in memes_dict:
         meme_siblings_data[meme['parent']] = [memeID]
     else:
         meme_siblings_data[meme['parent']].append(memeID)
-
-
 
     #_details_type
     for value in meme['_details_type']:
@@ -103,7 +101,6 @@ for d in memes_dict:
     #     if not len(meme_keywords_rows):
     #         meme_keywords_rows.append(['memeId', 'keyword'])
     #     meme_keywords_rows.append([memeID, value])
-
 
     #meme_content_rows
     for c in meme['_content']:

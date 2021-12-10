@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-import json
+# -*- coding: utf-8 -*-
+import json
 import sys
 import argparse
 import urllib.parse
