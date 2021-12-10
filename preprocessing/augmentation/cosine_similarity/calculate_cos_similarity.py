@@ -69,7 +69,7 @@ if not filename:
     sys.stderr.write("Error! No input file specified.\n")
     exit(1)
 if not threshold:
-    threshold = 0.0
+    threshold = 0.1
 if not type in ['tag', 'desc']:
     sys.stderr.write("-t Type should be 'tag' or 'desc'.\n")
     exit(1)
