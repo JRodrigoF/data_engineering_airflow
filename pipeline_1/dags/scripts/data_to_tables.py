@@ -12,17 +12,27 @@ Put preprocessed data in tsv for ingestion
 # parsing command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", "-f", type=str, required=True)
+parser.add_argument("--outfolder", "-o", type=str, required=True)
+parser.add_argument("--prefix", "-p", type=str, required=False)
 args = parser.parse_args()
 
 filename = args.file
-output_memes = "/opt/airflow/dags/data/memes.tsv"
-output_tags = "/opt/airflow/dags/data/meme_tags.tsv"
-output_types = "/opt/airflow/dags/data/meme_details_types.tsv"
-output_examples = "/opt/airflow/dags/data/meme_content_examples.tsv"
+#output folder name
+outputfolder = args.outfolder
+prefix = ''
+if  args.prefix:
+    prefix = args.prefix
+if not prefix.endswith('-'):
+    prefix += '_'
+
+output_memes = f"{outputfolder}/{prefix}memes.tsv"
+output_tags = f"{outputfolder}/{prefix}meme_tags.tsv"
+output_types = f"{outputfolder}/{prefix}meme_details_types.tsv"
+output_examples = f"{outputfolder}/{prefix}meme_content_examples.tsv"
 
 if not filename:
     sys.stderr.write("Error! No input file specified.\n")
-
+    sys.exit(1)
 sys.stderr.write(f"Read from {filename}.\n")
 
 # read all entries from file
@@ -106,11 +116,6 @@ for d in memes_dict:
         # for img in content['_images']:
         #     meme_content_images_rows.append([memeID, title, img])
 
-import os
-try:
-    os.stat('tsv')
-except:
-    os.mkdir('tsv')
 
 f = open(output_memes, 'w', encoding='UTF8')
 writer = csv.writer(f,  delimiter = "\t")
