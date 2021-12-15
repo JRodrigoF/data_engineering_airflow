@@ -194,7 +194,7 @@ sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outtopics,  ti
 
 
 writing_csv_start_time  = time.time()
-dfMemesTopics = pd.DataFrame(memeTopics, columns=('Id', 'topicId', 'topicProbScore'))
+dfMemesTopics = pd.DataFrame(memeTopics, columns=('memeId', 'topicId', 'topicProbScore'))
 dfMemesTopics.to_csv(outmemes, sep='\t', index = False)
 sys.stderr.write("--- Writing %s : %s seconds, %i rows --- \n" % (outmemes,  time.time() - writing_csv_start_time, dfMemesTopics.shape[0]))
 sys.stderr.write("--- Script total execution time:  %s seconds ---\n" % (time.time() - start_time))
