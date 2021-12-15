@@ -19,6 +19,7 @@ output_file = args.out
 
 if not filename:
     sys.stderr.write("Error! No input file specified.\n")
+    sys.exit(1)
 
 sys.stderr.write(f"Read from {filename}.\n")
 
@@ -39,6 +40,7 @@ for d in memes_dict:
     meme['category'] = memeO['category']
     #urldecode
     meme['Id'] = urllib.parse.unquote(memeO['url'].replace('https://knowyourmeme.com/memes/',''))
+
     meme['title'] = memeO['title']
     meme['last_update_source'] = memeO['last_update_source']
     meme['template_image_url'] = memeO['template_image_url']
@@ -120,7 +122,7 @@ for d in memes_dict:
 
     if meme['Id'] in new_memes:
         sys.stderr.write('We have a problem with nonunique ID:', meme['id'])
-        sys.exit()
+        sys.exit(1)
 
     new_memes[meme['Id']] = meme
 
