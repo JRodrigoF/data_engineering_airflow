@@ -34,7 +34,7 @@ with open(filename,'r') as f:
 
 memes_dim = {}
 
-columns = ['kym_id', 'name', 'added', 'origin', 'status', 'year', 'last_update', 'description', 'image_url', 'url', 'parent_kym_id']#,'tags'  ]
+columns = ['kym_id', 'name', 'added', 'origin', 'status', 'year', 'last_update', 'description', 'image_url', 'url', 'parent_kym_id', 'tags'  ]
 for col in columns:
     memes_dim[col] = []
 
@@ -61,7 +61,7 @@ for d in memes_dict:
     memes_dim['image_url']  .append( meme['template_image_url'])
     memes_dim['url'].append( meme['template_image_url'])
     memes_dim['parent_kym_id'].append(meme['parent'])
-    #memes_dim['tags'].append(json.dumps(sorted(meme['_tags']), ensure_ascii=False))
+    memes_dim['tags'].append(json.dumps(sorted(meme['_tags']), ensure_ascii=False))
 
 df = pd.DataFrame(memes_dim, columns=columns )
 df.fillna('null')
