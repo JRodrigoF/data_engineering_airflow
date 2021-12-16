@@ -51,7 +51,7 @@ for d in memes_dict:
 
     # meme['meta_title'] = None
     meme['meta_description'] = None
-    meme['meta_image'] = None
+    # meme['meta_image'] = None
 
     if 'meta' in memeO:
         if 'description' in memeO['meta']:
@@ -62,7 +62,7 @@ for d in memes_dict:
             meme['meta_description'] = memeO['meta']['twitter:description']
         # meme_title redundant with main title
         # meme['meta_title'] = memeO['meta']['og:title']
-        meme['meta_image'] = urllib.parse.unquote(memeO['meta']['og:image'])
+        # meme['meta_image'] = urllib.parse.unquote(memeO['meta']['og:image'])
 
     meme['details_status'] = memeO['details']['status']
     meme['details_origin'] = memeO['details']['origin']

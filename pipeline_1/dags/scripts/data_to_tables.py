@@ -75,7 +75,7 @@ for d in memes_dict:
     # tags data
     for value in meme['_tags']:
         if not len(meme_tag_rows):
-            meme_tag_rows.append(['memeId', 'tag'])
+            meme_tag_rows.append(['key_KYM', 'tag'])
         meme_tag_rows.append([memeID, value])
 
     # children data
@@ -93,7 +93,7 @@ for d in memes_dict:
     #_details_type
     for value in meme['_details_type']:
         if not len(meme_details_type_rows):
-            meme_details_type_rows.append(['memeId', 'type'])
+            meme_details_type_rows.append(['key_KYM', 'type'])
         meme_details_type_rows.append([memeID, value])
 
     # #meme_keywords_rows
@@ -107,7 +107,7 @@ for d in memes_dict:
         content = meme['_content'][c]
         # title = content['title']
         if not len(meme_content_example_rows):
-            meme_content_example_rows.append(['memeId', 'example'])
+            meme_content_example_rows.append(['key_KYM', 'variation'])
             # meme_content_texts_rows.append(['memeId', 'content_title', 'text'])
             # meme_content_links_rows.append(['memeId', 'content_title', 'url_title', 'url'])
             # meme_content_images_rows.append(['memeId', 'content_title', 'image'])
