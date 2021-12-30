@@ -2,6 +2,7 @@
 
 import argparse
 import pandas as pd
+import numpy  as np
 
 """
 Creates Dates dimension table
@@ -15,16 +16,26 @@ args = parser.parse_args()
 filename = args.file
 output = args.out
 
-df = (pd.read_csv(filename, sep="\t")
-        .rename(columns={'added': 'added_year',
-                        'details_year': 'details_historical_year',
-                        'last_update_source': 'last_update'})
-        .groupby(['added_year', 'details_historical_year',
-                'last_update']).first()
+df = pd.read_csv(filename, sep="\t")
+
+def concat_columns(df, col1, col2, colname):
+        df = pd.DataFrame(pd.concat([df[col1], df[col2]]), columns=[colname])
+        return df
+
+df = (df
+        .assign(added=df
+                .replace({'None': np.nan})
+                .apply(lambda x: x['added'] if pd.notnull(x['added']) else x['last_update_source'],
+                        axis='columns'))
+        .pipe(concat_columns, col1='added', col2='last_update_source', colname='timestamp')
+        .groupby(['timestamp']).first()
         .reset_index()
         .assign(date_id=lambda x: range(1, len(x) + 1))
-        .filter(items=['date_id', 'added_year',
-                'details_historical_year', 'last_update'])
+        .assign(year=lambda x: pd.to_datetime(x['timestamp'], unit='s').dt.year)
+        .assign(month=lambda x: pd.to_datetime(x['timestamp'], unit='s').dt.month)
+        .assign(day=lambda x: pd.to_datetime(x['timestamp'], unit='s').dt.day)
+        .assign(weekday=lambda x: pd.to_datetime(x['timestamp'], unit='s').dt.weekday)
+        .filter(items=['date_id', 'timestamp', 'year', 'month', 'day', 'weekday'])
 )
 
 df.to_csv(output, sep="\t", encoding='utf-8', index=False)
