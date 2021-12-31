@@ -127,24 +127,34 @@ Memes_Fact_Table_tsv = BashOperator(
 #     autocommit=True,
 # )
 
-start_schema = PostgresOperator(
-    task_id='start_schema',
+start_schema_db = PostgresOperator(
+    task_id='start_schema_db',
     dag=pipeline_1,
     postgres_conn_id='postgres_default',
-    # database = 'airflow',
-    # sql='/opt/airflow/dags/scripts/pipeline_1_inserts.sql',
-    # sql='sql/test.sql',
     sql=[
-        'DROP DATABASE IF EXISTS memes3',
-        'CREATE DATABASE memes3',
+        'DROP DATABASE IF EXISTS memes',
+        'CREATE DATABASE memes',
     ],
-    # sql='pipeline_1_inserts.sql',
     trigger_rule='all_success',
     autocommit=True,
 )
-# DROP DATABASE IF EXISTS memes3
 
-# CREATE DATABASE memes3
+# start_schema = PostgresOperator(
+#     task_id='start_schema',
+#     dag=pipeline_1,
+#     postgres_conn_id='postgres_default',
+#     # database = 'airflow',
+#     # sql='/opt/airflow/dags/scripts/pipeline_1_inserts.sql',
+#     # sql='sql/test.sql',
+#     sql=[
+#         'DROP DATABASE IF EXISTS memes3',
+#         'CREATE DATABASE memes3',
+#     ],
+#     # sql='pipeline_1_inserts.sql',
+#     trigger_rule='all_success',
+#     autocommit=True,
+# )
+
 
 # tenth_node = PostgresOperator(
 #     task_id='insert_inserts',
@@ -161,12 +171,12 @@ sink = DummyOperator(
     trigger_rule='none_failed'
 )
 
-# source >> KYM_data >> deduplicate >> filter_1 >> core_tables >> [
-#     date_dim, status_dim, origin_dim] >> Memes_Fact_Table_tsv >> start_schema >> sink
+source >> KYM_data >> deduplicate >> filter_1 >> core_tables >> [
+    date_dim, status_dim, origin_dim] >> Memes_Fact_Table_tsv >> start_schema_db >> sink
 
-# source >> GV_data >> GV_tables >> safeness_dim >> Memes_Fact_Table_tsv >> start_schema >> sink
+source >> GV_data >> GV_tables >> safeness_dim >> Memes_Fact_Table_tsv >> start_schema_db >> sink
 
-source >> start_schema >> sink
+# source >> start_schema_db >> sink
 
 # , GV_data] >> deduplicate >> filter_1 >> core_tables  # >> end
 # KYM_data >> GV_tables
