@@ -3,6 +3,7 @@ from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator, BranchPythonOperator
 from airflow.operators.dummy_operator import DummyOperator
+# from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.operators.postgres_operator import PostgresOperator
 
 DAGS_FOLDER = '/opt/airflow/dags/'
@@ -115,16 +116,57 @@ Memes_Fact_Table_tsv = BashOperator(
     depends_on_past=False,
 )
 
+# start_schema = PostgresOperator(
+#     task_id='start_schema',
+#     dag=pipeline_1,
+#     postgres_conn_id='postgres_default',
+#     database = 'airflow',
+#     # sql='/opt/airflow/dags/scripts/pipeline_1_inserts.sql',
+#     sql='pipeline_1_inserts.sql',
+#     trigger_rule='all_success',
+#     autocommit=True,
+# )
+
+start_schema = PostgresOperator(
+    task_id='start_schema',
+    dag=pipeline_1,
+    postgres_conn_id='postgres_default',
+    # database = 'airflow',
+    # sql='/opt/airflow/dags/scripts/pipeline_1_inserts.sql',
+    # sql='sql/test.sql',
+    sql=[
+        'DROP DATABASE IF EXISTS memes3',
+        'CREATE DATABASE memes3',
+    ],
+    # sql='pipeline_1_inserts.sql',
+    trigger_rule='all_success',
+    autocommit=True,
+)
+# DROP DATABASE IF EXISTS memes3
+
+# CREATE DATABASE memes3
+
+# tenth_node = PostgresOperator(
+#     task_id='insert_inserts',
+#     dag=assignment_dag,
+#     postgres_conn_id='postgres_default',
+#     sql='inserts.sql',
+#     trigger_rule='all_success',
+#     autocommit=True
+# )
+
 sink = DummyOperator(
     task_id='sink',
     dag=pipeline_1,
     trigger_rule='none_failed'
 )
 
-source >> KYM_data >> deduplicate >> filter_1 >> core_tables >> [
-    date_dim, status_dim, origin_dim] >> Memes_Fact_Table_tsv >> sink
+# source >> KYM_data >> deduplicate >> filter_1 >> core_tables >> [
+#     date_dim, status_dim, origin_dim] >> Memes_Fact_Table_tsv >> start_schema >> sink
 
-source >> GV_data >> GV_tables >> safeness_dim >> Memes_Fact_Table_tsv >> sink
+# source >> GV_data >> GV_tables >> safeness_dim >> Memes_Fact_Table_tsv >> start_schema >> sink
+
+source >> start_schema >> sink
 
 # , GV_data] >> deduplicate >> filter_1 >> core_tables  # >> end
 # KYM_data >> GV_tables
