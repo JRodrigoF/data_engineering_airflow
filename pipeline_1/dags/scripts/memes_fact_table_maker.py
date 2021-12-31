@@ -27,7 +27,7 @@ dim_dates = pd.read_csv(dims_folder + "dim_dates.tsv", sep="\t")
 dim_status = pd.read_csv(dims_folder + "dim_status.tsv", sep="\t")
 dim_parents = pd.read_csv(dims_folder + "dim_parents.tsv", sep="\t")
 dim_origins = pd.read_csv(dims_folder + "dim_origins.tsv", sep="\t")
-dim_safeness = pd.read_csv(dims_folder + "dim_safeness.tsv", sep="\t")
+dim_safeness = pd.read_csv(dims_folder + "dim_safeness_gv.tsv", sep="\t")
 
 status_dict = dim_status.set_index('details_status').to_dict()
 

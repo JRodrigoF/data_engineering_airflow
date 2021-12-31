@@ -1,12 +1,22 @@
 import datetime
+import pandas as pd
+import os
+
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator, BranchPythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-# from airflow.providers.postgres.operators.postgres import PostgresOperator
-from airflow.operators.postgres_operator import PostgresOperator
+from airflow.providers.postgres.operators.postgres import PostgresOperator
+# from airflow.operators.postgres_operator import PostgresOperator
+from airflow.hooks.postgres_hook import PostgresHook
 
 DAGS_FOLDER = '/opt/airflow/dags/'
+SCRIPTS_FOLDER = DAGS_FOLDER + 'scripts/'
+DATA_FOLDER = DAGS_FOLDER + 'data/'
+TEMPLATE_FOLDER = DAGS_FOLDER + 'data/'
+SQL_FOLDER = DAGS_FOLDER + 'sql/'
+
+POSTGRES_CONN_ID = "postgres_default"
 
 default_args_dict = {
     # cron sintax: * * * * *
@@ -103,7 +113,7 @@ GV_tables = BashOperator(
 safeness_dim = BashOperator(
     task_id='safeness_dim_tsv',
     dag=pipeline_1,
-    bash_command="python /opt/airflow/dags/scripts/dim_safeness.py --file /opt/airflow/dags/data/meme_safeness_relations.tsv --out /opt/airflow/dags/data/dim_safeness.tsv",
+    bash_command="python /opt/airflow/dags/scripts/dim_safeness_gv.py --file /opt/airflow/dags/data/meme_safeness_relations.tsv --out /opt/airflow/dags/data/dim_safeness_gv.tsv",
     trigger_rule='all_success',
     depends_on_past=False,
 )
@@ -116,19 +126,8 @@ Memes_Fact_Table_tsv = BashOperator(
     depends_on_past=False,
 )
 
-# start_schema = PostgresOperator(
-#     task_id='start_schema',
-#     dag=pipeline_1,
-#     postgres_conn_id='postgres_default',
-#     database = 'airflow',
-#     # sql='/opt/airflow/dags/scripts/pipeline_1_inserts.sql',
-#     sql='pipeline_1_inserts.sql',
-#     trigger_rule='all_success',
-#     autocommit=True,
-# )
-
-start_schema_db = PostgresOperator(
-    task_id='start_schema_db',
+db_init = PostgresOperator(
+    task_id='db_init',
     dag=pipeline_1,
     postgres_conn_id='postgres_default',
     sql=[
@@ -139,31 +138,35 @@ start_schema_db = PostgresOperator(
     autocommit=True,
 )
 
-# start_schema = PostgresOperator(
-#     task_id='start_schema',
-#     dag=pipeline_1,
-#     postgres_conn_id='postgres_default',
-#     # database = 'airflow',
-#     # sql='/opt/airflow/dags/scripts/pipeline_1_inserts.sql',
-#     # sql='sql/test.sql',
-#     sql=[
-#         'DROP DATABASE IF EXISTS memes3',
-#         'CREATE DATABASE memes3',
-#     ],
-#     # sql='pipeline_1_inserts.sql',
-#     trigger_rule='all_success',
-#     autocommit=True,
-# )
+postgres_db = PostgresOperator(
+    task_id='postgres_db',
+    dag=pipeline_1,
+    postgres_conn_id='postgres_default',
+    sql='sql/create_tables.sql',
+    trigger_rule='all_success',
+    autocommit=True,
+)
 
+def _postgres_populate_db(data_folder: str, postgres_conn_id: str):
+    hook = PostgresHook.get_hook(postgres_conn_id)
+    for table_name in ['dim_dates', 'dim_status', 'dim_origins', 'dim_safeness_gv', 'fact_table_memes']:
+        df_temp = pd.read_csv(f'{data_folder}/{table_name}.tsv', sep="\t")
+        df_temp.to_csv(f'{data_folder}/temp_{table_name}.tsv', sep="\t",
+                        encoding='utf-8', na_rep='None', header=False, index=False)
+        # hook.run(f"COPY {table_name} FROM '{data_folder}/temp_{table_name}.tsv' DELIMITER '\t' CSV HEADER")
+        hook.bulk_load(table_name, f'{data_folder}/temp_{table_name}.tsv')
+        os.remove(f'{data_folder}/temp_{table_name}.tsv')
 
-# tenth_node = PostgresOperator(
-#     task_id='insert_inserts',
-#     dag=assignment_dag,
-#     postgres_conn_id='postgres_default',
-#     sql='inserts.sql',
-#     trigger_rule='all_success',
-#     autocommit=True
-# )
+populate_db = PythonOperator(
+    task_id='populate_db',
+    dag=pipeline_1,
+    python_callable=_postgres_populate_db,
+    op_kwargs={
+        'data_folder': DATA_FOLDER,
+        'postgres_conn_id': POSTGRES_CONN_ID
+    },
+    trigger_rule='all_success',
+)
 
 sink = DummyOperator(
     task_id='sink',
@@ -172,11 +175,11 @@ sink = DummyOperator(
 )
 
 source >> KYM_data >> deduplicate >> filter_1 >> core_tables >> [
-    date_dim, status_dim, origin_dim] >> Memes_Fact_Table_tsv >> start_schema_db >> sink
+    date_dim, status_dim, origin_dim] >> Memes_Fact_Table_tsv >> db_init >> postgres_db >> populate_db >> sink
 
-source >> GV_data >> GV_tables >> safeness_dim >> Memes_Fact_Table_tsv >> start_schema_db >> sink
+source >> GV_data >> GV_tables >> safeness_dim >> Memes_Fact_Table_tsv >> db_init >> postgres_db >> populate_db >> sink
 
-# source >> start_schema_db >> sink
+# source >> db_init >> postgres_db >> populate_db >> sink
 
 # , GV_data] >> deduplicate >> filter_1 >> core_tables  # >> end
 # KYM_data >> GV_tables
