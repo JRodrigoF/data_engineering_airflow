@@ -12,15 +12,24 @@ Put preprocessed data in tsv for ingestion
 # parsing command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument("--file", "-f", type=str, required=True)
+parser.add_argument("--outfolder", "-o", type=str, required=True)
+parser.add_argument("--prefix", "-p", type=str, required=False)
 args = parser.parse_args()
 
 filename = args.file
-output_memes = "/opt/airflow/dags/data/memes.tsv"
-output_tags = "/opt/airflow/dags/data/meme_tags.tsv"
-output_types = "/opt/airflow/dags/data/meme_details_types.tsv"
-output_examples = "/opt/airflow/dags/data/meme_content_examples.tsv"
-output_children = "/opt/airflow/dags/data/parent_children_relations.tsv"
-output_siblings = "/opt/airflow/dags/data/siblings_relations.tsv"
+outputfolder = args.outfolder
+prefix = ''
+if args.prefix:
+    prefix = args.prefix
+if not prefix.endswith('-'):
+    prefix += '_'
+
+output_memes = f"{outputfolder}/{prefix}memes.tsv"
+output_tags = f"{outputfolder}/{prefix}meme_tags.tsv"
+output_types = f"{outputfolder}/{prefix}meme_details_types.tsv"
+output_examples = f"{outputfolder}/{prefix}meme_content_examples.tsv"
+output_children = f"{outputfolder}/{prefix}parent_children_relations.tsv"
+output_siblings = f"{outputfolder}/{prefix}siblings_relations.tsv"
 
 if not filename:
     sys.stderr.write("Error! No input file specified.\n")
