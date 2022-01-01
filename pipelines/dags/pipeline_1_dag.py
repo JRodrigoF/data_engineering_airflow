@@ -1,11 +1,21 @@
 import datetime
+import pandas as pd
+import os
+
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator, BranchPythonOperator
 from airflow.operators.dummy_operator import DummyOperator
-from airflow.operators.postgres_operator import PostgresOperator
+from airflow.providers.postgres.operators.postgres import PostgresOperator
+# from airflow.operators.postgres_operator import PostgresOperator
+from airflow.hooks.postgres_hook import PostgresHook
 
 DAGS_FOLDER = '/opt/airflow/dags/'
+SCRIPTS_FOLDER = DAGS_FOLDER + 'scripts/'
+DATA_FOLDER = DAGS_FOLDER + 'data/'
+SQL_FOLDER = DAGS_FOLDER + 'sql/'
+
+POSTGRES_CONN_ID = "postgres_default"
 
 default_args_dict = {
     # cron sintax: * * * * *
@@ -20,7 +30,6 @@ pipeline_1 = DAG(
     dag_id='pipeline_1',
     default_args=default_args_dict,
     catchup=False,
-    template_searchpath=DAGS_FOLDER,
 )
 
 source = DummyOperator(
