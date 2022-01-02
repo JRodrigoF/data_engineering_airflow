@@ -252,6 +252,8 @@ populate_db = PythonOperator(
 )
 
 
+"""
+
 
 make_meme_similarity_facts_csv = BashOperator(
     task_id='make_meme_similarity_facts_csv',
@@ -432,8 +434,21 @@ neo4j_create_Meme_has_similar_tags_rel = Neo4jOperator(
         depends_on_past=False,
     )
 
+make_neoj4_queries = DummyOperator(
+    task_id='make_neoj4_queries',
+    dag=pipeline,
+    trigger_rule='none_failed'
+)
 
 
+
+query_neoj4_longest_chains = DummyOperator(
+    task_id='sink',
+    dag=pipeline,
+    trigger_rule='none_failed'
+)
+
+"""
 sink = DummyOperator(
     task_id='sink',
     dag=pipeline,
@@ -448,6 +463,7 @@ source >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> \
     [date_dim_tsv, status_dim_tsv, origin_dim_tsv, memes_dim_tsv] >> \
     KYM_fact_table_tsv >> db_init >> postgres_db >> populate_db >> sink
 
+"""
 KYM_data_to_tsv >> [extract_lda_topics, make_meme_similarity_facts_csv] >> neo4j_start_creating_indexes >> neo4j_delete_all_from_db
 
 for node in ['LDATopic', 'Meme', 'Text']:
@@ -464,6 +480,6 @@ for node in ['LDATopic', 'Meme', 'Text']:
     neo4j_create_index_node >> neo4j_start_creating_nodes
 
 neo4j_start_creating_relations >> [neo4j_create_Meme_has_similar_description_rel, neo4j_create_Meme_has_similar_tags_rel, neo4j_create_meme_Text_has_tag_rel, neo4j_create_LDAtopic_Text_has_keyword_rel, neo4j_create_meme_child_relations, neo4j_create_meme_sibling_relations] >> sink
-
+"""
 source >> Google_Vision_data >> GV_data_to_tsv >> safeness_dim_tsv >> \
     KYM_fact_table_tsv >> db_init >> postgres_db >> populate_db >> sink
