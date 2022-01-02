@@ -11,7 +11,7 @@ OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipeline_1/'
 
 default_args_dict = {
     # cron sintax: * * * * *
-    'start_date': datetime.datetime(2020, 12, 1, 0, 0, 0),
+    'start_date': datetime.datetime(2021, 12, 1, 0, 0, 0),
     'concurrency': 1,
     'schedule_interval': "0 0 * * *",   # run now
     'retries': 1,

@@ -5,7 +5,6 @@ import os
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.operators.python_operator import BranchPythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.hooks.postgres_hook import PostgresHook
@@ -19,7 +18,7 @@ POSTGRES_CONN_ID = "postgres_default"
 
 default_args_dict = {
     # cron sintax: * * * * *
-    'start_date': datetime.datetime(2020, 12, 1, 0, 0, 0),
+    'start_date': datetime.datetime(2021, 12, 1, 0, 0, 0),
     'concurrency': 1,
     'schedule_interval': "0 0 * * *",   # run now
     'retries': 1,
@@ -182,6 +181,7 @@ postgres_db = PostgresOperator(
 
 def _postgres_populate_db(output_folder: str, postgres_conn_id: str, epoch: str):
     hook = PostgresHook.get_hook(postgres_conn_id)
+
     # tables = ['dim_dates', 'dim_status', 'dim_origins', 'dim_safeness_gv',
     #           'fact_table_memes']:
     tables = ['dim_dates', 'dim_status', 'dim_origins', 'fact_table_memes']
@@ -190,10 +190,9 @@ def _postgres_populate_db(output_folder: str, postgres_conn_id: str, epoch: str)
         df_temp = pd.read_csv(
             f'{output_folder}/{epoch}_{table_name}.tsv', sep="\t")
         df_temp.to_csv(tmp_table, sep="\t", encoding='utf-8', na_rep='None',
-                        header=False, index=False)
+                        header=False, index=False) # removes header
         # hook.run(f"COPY {table_name} FROM '{tmp_table}.tsv' DELIMITER '\t' CSV HEADER")
-        hook.bulk_load(
-            table_name, tmp_table)
+        hook.bulk_load(table_name, tmp_table)
         os.remove(tmp_table)
 
 populate_db = PythonOperator(
@@ -214,18 +213,6 @@ sink = DummyOperator(
     trigger_rule='none_failed'
 )
 
-# source >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> sink
-
 source >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> \
     [date_dim_tsv, status_dim_tsv, origin_dim_tsv, memes_dim_tsv] >> \
     KYM_fact_table_tsv >> db_init >> postgres_db >> populate_db  >> sink
-
-# source >> GV_data >> GV_tables >> safeness_dim >> Memes_Fact_Table_tsv >> sink
-
-# , GV_data] >> deduplicate >> filter_1 >> core_tables  # >> end
-# KYM_data >> GV_tables
-
-# KYM_data >> deduplicate
-
-# [deduplicate >> filter_1 >> core_tables >> [
-#     date_dim, status_dim, origin_dim]]
