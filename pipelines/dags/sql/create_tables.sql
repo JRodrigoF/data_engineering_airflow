@@ -85,6 +85,12 @@ CREATE TABLE fact_table_memes (
         REFERENCES dim_status(status_Id) MATCH SIMPLE
 );
 
+CREATE INDEX dates_idx ON dim_dates USING btree (date_Id);
+CREATE INDEX status_idx ON dim_status USING btree (status_Id);
+CREATE INDEX origins_idx ON dim_origins USING btree (origin_Id);
+CREATE INDEX ft_idx ON fact_table_memes USING btree (Id);
+
+-- CREATE INDEX safeness_gv_idx ON dim_safeness_gv USING btree (safeness_Id);
     -- FOREIGN KEY(safeness_Id)
     --     REFERENCES dim_safeness_gv(safeness_Id) MATCH SIMPLE
 
