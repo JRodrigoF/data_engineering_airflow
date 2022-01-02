@@ -22,7 +22,7 @@ output = args.out
 #     GV_dict = json.load(f)
 
 # read all entries from file
-with gzip.open(input_file, 'r', 9) as f:
+with gzip.open(input_file, 'r') as f:
     json_bytes = f.read()
     json_str = json_bytes.decode('utf-8')
     GV_dict = json.loads(json_str)
