@@ -38,7 +38,7 @@ dim_origins = pd.read_csv(dims_folder + "dim_origins.tsv", sep="\t")
 status_dict = dim_status.set_index('details_status').to_dict()
 
 df_children = (df_children
-    .assign(memeId=lambda x: x['memeId']
+    .assign(memeId=lambda x: x['meme_Id']
     .str.replace('memes/', ''))
 )
 

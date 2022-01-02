@@ -57,7 +57,7 @@ x-airflow-common: &airflow-common
     AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
     AIRFLOW__CORE__LOAD_EXAMPLES: "false"
     AIRFLOW__API__AUTH_BACKEND: "airflow.api.auth.backend.basic_auth"
-    AIRFLOW_CONN_POSTGRES_DEFAULT: postgres://airflow:airflow@postgres:5432/airflow?
+    AIRFLOW_CONN_POSTGRES_DEFAULT: postgres://airflow:airflow@postgres:5432/airflow
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
   volumes:
     - ./dags:/opt/airflow/dags
@@ -221,7 +221,7 @@ services:
       - "7687:7687"
     volumes:
       - ./neo4j/plugins:/plugins
-      - ./dags/data:/import
+      - ./dags/output:/import
     environment:
       NEO4J_AUTH: neo4j/pass
       NEO4J_dbms_logs_debug_level: DEBUG

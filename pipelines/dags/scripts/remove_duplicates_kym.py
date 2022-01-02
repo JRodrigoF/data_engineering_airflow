@@ -29,7 +29,7 @@ sys.stderr.write(f"Read from {input_file}.\n")
 #     data = json.load(f)
 
 # read all entries from file
-with gzip.open(input_file, 'r') as f:
+with gzip.open(input_file, 'r', 9) as f:
     json_bytes = f.read()
     json_str = json_bytes.decode('utf-8')
     data = json.loads(json_str)

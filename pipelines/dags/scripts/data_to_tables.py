@@ -89,7 +89,7 @@ for d in memes_dict:
 
     # children data
     if not len(meme_children_rows):
-        meme_children_rows.append(['memeId', 'child'])
+        meme_children_rows.append(['meme_Id', 'child'])
     elif meme['parent'] != None:
         meme_children_rows.append([meme['parent'], memeID])
 
@@ -141,7 +141,7 @@ for meme in meme_siblings_data:
 
         for sibling in meme_siblings_data[meme]:
             if not len(meme_siblings_rows):
-                meme_siblings_rows.append(['memeID', 'sibling'])
+                meme_siblings_rows.append(['meme_Id', 'sibling'])
             meme_siblings_rows.append([head_of_siblings, sibling])
 
 import os
