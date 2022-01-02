@@ -33,7 +33,7 @@ for d in memes_dict:
     memeO = memes_dict[d]
     meme = {}
     # Keeping only category 'meme'
-    # Keeping only status in ['confirmed', 'submission']
+    # Keeping also other statuses than ['confirmed', 'submission'] to preserve child-parent chain
     if memeO['category'] != 'Meme' or memeO['details']['status'] not in ['confirmed', 'submission']:
         continue
 
@@ -86,7 +86,7 @@ for d in memes_dict:
     # related memes
     meme['parent'] = None
     if 'parent' in memeO:
-        meme['parent'] = memeO['parent'].replace('https://knowyourmeme.com/','')
+        meme['parent'] = memeO['parent'].replace('https://knowyourmeme.com/memes/','').replace('https://knowyourmeme.com/','')
 
     # drop for now, except notable examples
     # keeping loop over sections in case we decide to keep more
