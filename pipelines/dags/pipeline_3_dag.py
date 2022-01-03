@@ -206,9 +206,42 @@ populate_db = PythonOperator(
     trigger_rule='all_success',
 )
 
+# SQL_queries = PostgresOperator(
+#     task_id='SQL_queries',
+#     dag=pipeline_3,
+#     postgres_conn_id='postgres_default',
+#     sql='sql/sql_queries.sql',
+#     trigger_rule='all_success',
+#     autocommit=True,
+# )
+
+# def _query_tables_to_tsv(output_folder: str, postgres_conn_id: str, tables: list):
+#     hook = PostgresHook.get_hook(postgres_conn_id)
+#     # output_file = output_folder +
+#     # hook.run(f"COPY {table_name} FROM '{tmp_table}.tsv' DELIMITER '\t' CSV HEADER")
+#     # sql_query = f"COPY (SELECT * FROM fact_table_memes) TO '{tmp_table}.tsv' DELIMITER '\t' CSV HEADER"
+#     # sql_query = "COPY (SELECT * FROM fact_table_memes) TO '/opt/airflow/dags/output/pipeline_3/' DELIMITER ',' CSV HEADER"
+#     for table in tables:
+#         file = output_folder + table + '_from_query.tsv'
+#         hook.bulk_dump(table, file)
+
+# query_tables_to_tsv = PythonOperator(
+#     task_id='query_tables_to_tsv',
+#     dag=pipeline_3,
+#     python_callable=_query_tables_to_tsv,
+#     op_kwargs={
+#         'output_folder': OUTPUT_FOLDER,
+#         'postgres_conn_id': POSTGRES_CONN_ID,
+#         'tables': ['test_table']
+#     },
+#     trigger_rule='all_success',
+# )
+
+
 def _queries_to_tables(dags_folder: str, output_folder: str,
     postgres_conn_id: str, query_names: list):
 
+    # hook = PostgresHook.get_hook(postgres_conn_id)
     conn = PostgresHook(postgres_conn_id=postgres_conn_id).get_conn()
 
     sql_folder = '{}sql'.format(dags_folder)
@@ -217,7 +250,7 @@ def _queries_to_tables(dags_folder: str, output_folder: str,
 
     for sql_file in sql_files:
         file_path = '{}/{}'.format(sql_folder, sql_file)
-        file_preffix = sql_file
+        file_preffix = sql_file.replace('.sql', '')
         with open(file_path, 'r') as f:
             sql_query = f.read().replace('\'', '')
 
@@ -237,17 +270,10 @@ query_tables_to_tsv = PythonOperator(
     trigger_rule='all_success',
 )
 
-ploting = BashOperator(
-    task_id='ploting',
+plots = DummyOperator(
+    task_id='plots',
     dag=pipeline_3,
-    bash_command=("python "
-                + " {SCRIPTS_FOLDER}tsv_to_plots.py "
-                + "--folder {OUTPUT_FOLDER} "
-                + "--prefix {epoch} ")
-                .format(SCRIPTS_FOLDER=SCRIPTS_FOLDER,
-                    OUTPUT_FOLDER=OUTPUT_FOLDER,
-                    epoch="{{ execution_date.int_timestamp }}"),
-    trigger_rule='all_success'
+    trigger_rule='none_failed'
 )
 
 sink = DummyOperator(
@@ -261,4 +287,4 @@ sink = DummyOperator(
 source >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> \
     [date_dim_tsv, status_dim_tsv, origin_dim_tsv, memes_dim_tsv] >> \
     KYM_fact_table_tsv >> db_init >> postgres_db >> populate_db >> \
-    query_tables_to_tsv >> ploting >> sink
+    query_tables_to_tsv >> plots >> sink
