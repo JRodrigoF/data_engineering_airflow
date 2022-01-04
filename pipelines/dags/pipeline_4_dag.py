@@ -8,17 +8,15 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 from airflow.hooks.postgres_hook import PostgresHook
-
 from airflow.providers.neo4j.operators.neo4j import Neo4jOperator
-
 
 DAGS_FOLDER = '/opt/airflow/dags/'
 SCRIPTS_FOLDER = DAGS_FOLDER + 'scripts/'
 DATA_FOLDER = DAGS_FOLDER + 'data/'
 OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipeline_4/'
 NEO4J_INPUT_FOLDER =  'pipeline_4/'
-POSTGRES_CONN_ID = "postgres_default"
 
+POSTGRES_CONN_ID = "postgres_default"
 NEO4J_CONN_ID = "neo4j_default"
 
 
@@ -40,7 +38,7 @@ pipeline = DAG(
     catchup=False,
     user_defined_filters={
         "epoch_int": epoch_int,
-  }
+    }
 )
 
 source = DummyOperator(
@@ -238,7 +236,6 @@ def _postgres_populate_db(output_folder: str, postgres_conn_id: str, epoch: str)
         hook.bulk_load(table_name, tmp_table)
         os.remove(tmp_table)
 
-
 populate_db = PythonOperator(
     task_id='populate_db',
     dag=pipeline,
@@ -267,7 +264,6 @@ make_meme_similarity_facts_csv = BashOperator(
     trigger_rule='all_success',
     depends_on_past=False,
 )
-
 
 extract_lda_topics = BashOperator(
     task_id='extract_lda_topics',
@@ -306,11 +302,7 @@ neo4j_start_creating_indexes = DummyOperator(
     depends_on_past=False,
 )
 
-
-
-
 TIMESTAMP = '1641051821'
-
 
 neo4j_create_meme_nodes = Neo4jOperator(
     task_id='neo4j_create_Meme_nodes',
@@ -322,8 +314,6 @@ neo4j_create_meme_nodes = Neo4jOperator(
     trigger_rule='all_success',
     depends_on_past=False,
 )
-
-
 
 neo4j_create_ldatopic_nodes = Neo4jOperator(
     task_id='neo4j_create_LDATopic_nodes',
@@ -344,7 +334,6 @@ neo4j_start_creating_relations = DummyOperator(
 )
 
 neo4j_start_creating_nodes >>[neo4j_create_meme_nodes, neo4j_create_ldatopic_nodes] >> neo4j_start_creating_relations
-
 
 neo4j_create_meme_child_relations = Neo4jOperator(
     task_id='neo4j_create_meme_child_relations',
@@ -454,10 +443,6 @@ sink = DummyOperator(
     dag=pipeline,
     trigger_rule='none_failed'
 )
-
-
-
-
 
 source >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> \
     [date_dim_tsv, status_dim_tsv, origin_dim_tsv, memes_dim_tsv] >> \
