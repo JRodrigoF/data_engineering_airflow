@@ -33,6 +33,7 @@ with gzip.open(input_file, 'r', 9) as f:
     json_bytes = f.read()
     json_str = json_bytes.decode('utf-8')
     data = json.loads(json_str)
+    f.close()
 
 memes_dict = {}
 for d in data:
@@ -44,7 +45,7 @@ for d in data:
 # dict key is 'url'
 with open(output_file, 'w', encoding='utf-8') as f:
     json.dump(memes_dict, f, ensure_ascii=False, sort_keys=True)
-
+    f.close()
 sys.stderr.write("Done.\n")
 sys.stderr.write(f"File {input_file} has been de-duplicated.\n")
 sys.stderr.write(f"Output has been written to {output_file}.\n")

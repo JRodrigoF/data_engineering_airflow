@@ -27,9 +27,10 @@ sys.stderr.write(f"Read from {filename}.\n")
 # dict of dicts, keys are the url of the memes
 with open(filename,'r') as f:
     memes_dict = json.load(f)
+    f.close()
 
 new_memes = {}
-for d in memes_dict:
+for d in memes_dict.keys():
     memeO = memes_dict[d]
     meme = {}
     # Keeping only category 'meme'

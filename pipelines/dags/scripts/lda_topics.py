@@ -152,7 +152,7 @@ vect_text = vect.fit_transform(df['cleaned_desc'])
 from sklearn.decomposition import LatentDirichletAllocation
 lda_model = LatentDirichletAllocation(n_components=TOPICS,learning_method='online',random_state=42,max_iter=20)
 lda_top = lda_model.fit_transform(vect_text)
-vocab = vect.get_feature_names_out()
+vocab = vect.get_feature_names()
 
 
 #   collectiong data
