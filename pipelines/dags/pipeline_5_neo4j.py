@@ -81,7 +81,7 @@ neo4j_create_meme_nodes = Neo4jOperator(
     task_id='neo4j_create_Meme_nodes',
     neo4j_conn_id=NEO4J_CONN_ID,
     sql= (" LOAD CSV WITH HEADERS FROM \"file:///{INPUT_FOLDER1}{epoch}_memes.tsv\" AS row FIELDTERMINATOR '\t' \n"
-        + " MERGE (m:Meme {{Id: row.Id, category:row.category, status:row.details_status}}) "
+        + " MERGE (m:Meme {{Id: row.Id, category:row.category, status:row.details_status, description:row.meta_description}}) "
         ).format(INPUT_FOLDER1=INPUT_FOLDER1, epoch=TIMESTAMP),
     dag=pipeline,
 )
