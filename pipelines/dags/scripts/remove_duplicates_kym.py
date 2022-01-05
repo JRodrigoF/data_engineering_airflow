@@ -22,6 +22,7 @@ output_file = args.out
 
 if not input_file:
     sys.stderr.write("Error! No input file specified.\n")
+    sys.exit(1)
 
 sys.stderr.write(f"Read from {input_file}.\n")
 
