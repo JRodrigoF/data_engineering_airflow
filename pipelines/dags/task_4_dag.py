@@ -38,13 +38,17 @@ create_dag_folder = BashOperator(
     trigger_rule='none_failed'
 )
 
+#bash_command= ("tar xvzf {DATA_FOLDER}precalculated_memes_similarity_score.tsv.gz {OUTPUT_FOLDER} "
+#            " && mv {OUTPUT_FOLDER}precalculated_memes_similarity_score.tsv {OUTPUT_FOLDER}{epoch}_memes_similarity_score.tsv"
+#        ).format(DATA_FOLDER=DATA_FOLDER, OUTPUT_FOLDER=OUTPUT_FOLDER, epoch="{{ execution_date.int_timestamp }}"),
+
 # lets use precalculated tsv, as this script runs for ca 7 minutes
 if USE_PRECALCULATED_MEMES_SIMILARITY_DATA:
 
     make_meme_similarity_facts_csv = BashOperator(
         task_id='make_meme_similarity_facts_csv',
         dag=pipeline,
-        bash_command= ("gzip {DATA_FOLDER}precalculated_memes_similarity_score.tsv.gz >{OUTPUT_FOLDER}{epoch}_memes_similarity_score.tsv"
+        bash_command= ("gunzip -c {DATA_FOLDER}precalculated_memes_similarity_score.tsv.gz > {OUTPUT_FOLDER}{epoch}_memes_similarity_score.tsv"
             ).format(DATA_FOLDER=DATA_FOLDER, OUTPUT_FOLDER=OUTPUT_FOLDER, epoch="{{ execution_date.int_timestamp }}"),
         trigger_rule='all_success',
         depends_on_past=False,
