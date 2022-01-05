@@ -36,3 +36,26 @@ If the exit code is 0 then it's all good.
 ```sh
 docker-compose up
 ```
+
+### Connections
+
+After it is up, add a new connection:
+
+**postgres**
+
+* Name - postgres_default
+* Conn type - postgres
+* Host - postgres
+* Database - airflow
+* Username - airflow
+* Port - 5432
+
+**neoj4**
+
+* Name - neo4j_default
+* Conn type - neo4j
+* Host - neo4j
+* Database - neo4j
+* Username - neo4j
+* Password - pass
+* Port - 7687
