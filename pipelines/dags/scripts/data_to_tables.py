@@ -21,7 +21,7 @@ outputfolder = args.outfolder
 prefix = ''
 if args.prefix:
     prefix = args.prefix
-if not prefix.endswith('-'):
+if len(prefix) and not prefix.endswith('_'):
     prefix += '_'
 
 output_memes = f"{outputfolder}/{prefix}memes.tsv"

@@ -18,7 +18,7 @@ output = args.out
 prefix = ''
 if args.prefix:
     prefix = args.prefix
-if not prefix.endswith('-'):
+if  len(prefix) and not prefix.endswith('_'):
     prefix += '_'
 
 dims_folder = args.folder + prefix
