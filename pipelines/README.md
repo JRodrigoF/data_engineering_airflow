@@ -39,7 +39,7 @@ docker-compose up
 
 ### Connections
 
-After it is up, add a new connection:
+After it is up, add a new connections:
 
 **postgres**
 
