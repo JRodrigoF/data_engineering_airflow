@@ -9,32 +9,38 @@ Creates Memes Fact table
 """
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--folder", "-f", type=str, required=True)
+parser.add_argument("--folder1", "-f", type=str, required=True)
+parser.add_argument("--folder2", "-g", type=str, required=True)
+parser.add_argument("--folder3", "-i", type=str, required=True)
+parser.add_argument("--prefix", "-p", type=str, required=True)
 parser.add_argument("--out", "-o", type=str, required=True)
-parser.add_argument("--prefix", "-p", type=str, required=False)
+
 args = parser.parse_args()
 
-output = args.out
-prefix = ''
 if args.prefix:
     prefix = args.prefix
-if  len(prefix) and not prefix.endswith('_'):
+
+if len(prefix) and not prefix.endswith('_'):
     prefix += '_'
 
-dims_folder = args.folder + prefix
+output = args.out
 
-df_memes = pd.read_csv(dims_folder + "memes.tsv", sep="\t")
-df_children = pd.read_csv(
-    dims_folder + "parent_children_relations.tsv", sep="\t")
-df_safeness = pd.read_csv(dims_folder + "meme_safeness_relations.tsv", sep="\t")
-df_tags = pd.read_csv(dims_folder + "meme_tags.tsv", sep="\t")
-df_examples = pd.read_csv(dims_folder + "meme_content_examples.tsv", sep="\t")
 
-dim_dates = pd.read_csv(dims_folder + "dim_dates.tsv", sep="\t")
-dim_status = pd.read_csv(dims_folder + "dim_status.tsv", sep="\t")
+dims_folder1 = args.folder1
+dims_folder2 = args.folder2
+dims_folder3 = args.folder3
+
+df_memes = pd.read_csv(dims_folder1 + "memes.tsv", sep="\t")
+df_children = pd.read_csv(dims_folder1 + "parent_children_relations.tsv", sep="\t")
+df_safeness = pd.read_csv(dims_folder2 + "meme_safeness_relations.tsv", sep="\t")
+df_tags = pd.read_csv(dims_folder1 + "meme_tags.tsv", sep="\t")
+df_examples = pd.read_csv(dims_folder1 + "meme_content_examples.tsv", sep="\t")
+
+dim_dates = pd.read_csv(dims_folder3 + prefix + "dim_dates.tsv", sep="\t")
+dim_status = pd.read_csv(dims_folder3 + prefix +"dim_status.tsv", sep="\t")
 # dim_parents = pd.read_csv(dims_folder + "dim_parents.tsv", sep="\t")
-dim_origins = pd.read_csv(dims_folder + "dim_origins.tsv", sep="\t")
-dim_safeness = pd.read_csv(dims_folder + "dim_safeness_gv.tsv", sep="\t")
+dim_origins = pd.read_csv(dims_folder3 + prefix +"dim_origins.tsv", sep="\t")
+dim_safeness = pd.read_csv(dims_folder2 + "dim_safeness_gv.tsv", sep="\t")
 
 status_dict = dim_status.set_index('details_status').to_dict()
 
