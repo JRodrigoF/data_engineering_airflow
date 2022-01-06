@@ -18,6 +18,8 @@ from airflow.providers.neo4j.hooks.neo4j import Neo4jHook
 DAGS_FOLDER = '/opt/airflow/dags/'
 SCRIPTS_FOLDER = DAGS_FOLDER + 'scripts/'
 DATA_FOLDER = DAGS_FOLDER + 'data/'
+
+# each pipe taskgroup will write it's ouput to different folder
 TASK1_FOLDER = DAGS_FOLDER + 'output/pipe_1/'
 TASK2_FOLDER = DAGS_FOLDER + 'output/pipe_2/'
 TASK3_FOLDER = DAGS_FOLDER + 'output/pipe_3/'
@@ -26,7 +28,7 @@ TASK4_FOLDER = DAGS_FOLDER + 'output/pipe_4/'
 POSTGRES_CONN_ID = "postgres_default"
 NEO4J_CONN_ID = "neo4j_default"
 
-
+# lets use by default precalculated meme similarity score tsv, as this script runs for ca 7-10 minutes
 USE_PRECALCULATED_MEMES_SIMILARITY_DATA = 1
 
 # [START howto_task_group]
@@ -43,8 +45,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='none_failed'
         )
 
-        create_dag_folder = BashOperator(
-            task_id='create_dag_folder',
+        make_output_folder = BashOperator(
+            task_id='make_output_folder',
             dag=pipeline,
             bash_command=("mkdir -p  {OUTPUT_FOLDER}").format(OUTPUT_FOLDER=OUTPUT_FOLDER),
             trigger_rule='none_failed'
@@ -126,15 +128,15 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='none_failed'
         )
 
-        source >> create_dag_folder >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> rename_output_files >> sink
+        source >> make_output_folder >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> rename_output_files >> sink
 
     ######################################## END PIPE_1 ###################################
 
     ######################################## START PIPE_2 ###################################
     with TaskGroup("pipe_2", tooltip="Tasks for pipe_2") as pipe_2:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_2/'
-        create_dag_folder = BashOperator(
-            task_id='create_dag_folder',
+        make_output_folder = BashOperator(
+            task_id='make_output_folder',
             dag=pipeline,
             bash_command=("mkdir -p  {OUTPUT_FOLDER}").format(OUTPUT_FOLDER=OUTPUT_FOLDER),
             trigger_rule='none_failed'
@@ -200,15 +202,15 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='none_failed'
         )
 
-        create_dag_folder >> Google_Vision_data >> GV_data_to_tsv >> safeness_dim_tsv >> rename_output_files >> sink
+        make_output_folder >> Google_Vision_data >> GV_data_to_tsv >> safeness_dim_tsv >> rename_output_files >> sink
     ######################################## END PIPE_2 ###################################
 
     ######################################## START PIPE_3 ###################################
 
     with TaskGroup("pipe_3", tooltip="Tasks for pipe_3") as pipe_3:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_3/'
-        create_dag_folder = BashOperator(
-            task_id='create_dag_folder',
+        make_output_folder = BashOperator(
+            task_id='make_output_folder',
             dag=pipeline,
             bash_command=("mkdir -p  {OUTPUT_FOLDER}").format(OUTPUT_FOLDER=OUTPUT_FOLDER),
             trigger_rule='none_failed'
@@ -361,7 +363,7 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='none_failed'
         )
 
-        create_dag_folder >> [date_dim_tsv, status_dim_tsv, origin_dim_tsv, memes_dim_tsv] >> KYM_fact_table_tsv >> db_init >> postgres_db >> populate_db >> sink
+        make_output_folder >> [date_dim_tsv, status_dim_tsv, origin_dim_tsv, memes_dim_tsv] >> KYM_fact_table_tsv >> db_init >> postgres_db >> populate_db >> sink
 
 
     ######################################## END PIPE_3 ###################################
@@ -370,16 +372,13 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
 
     with TaskGroup("pipe_4", tooltip="Tasks for pipe_4") as pipe_4:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_4/'
-        create_dag_folder = BashOperator(
-            task_id='create_dag_folder',
+        make_output_folder = BashOperator(
+            task_id='make_output_folder',
             dag=pipeline,
             bash_command=("mkdir -p  {OUTPUT_FOLDER}").format(OUTPUT_FOLDER=OUTPUT_FOLDER),
             trigger_rule='none_failed'
         )
 
-        #bash_command= ("tar xvzf {DATA_FOLDER}precalculated_memes_similarity_score.tsv.gz {OUTPUT_FOLDER} "
-        #            " && mv {OUTPUT_FOLDER}precalculated_memes_similarity_score.tsv {OUTPUT_FOLDER}{epoch}_memes_similarity_score.tsv"
-        #        ).format(DATA_FOLDER=DATA_FOLDER, OUTPUT_FOLDER=OUTPUT_FOLDER, epoch="{{ execution_date.int_timestamp }}"),
 
         # lets use precalculated tsv, as this script runs for ca 7 minutes
         if USE_PRECALCULATED_MEMES_SIMILARITY_DATA:
@@ -452,7 +451,7 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='none_failed'
         )
 
-        create_dag_folder >> [make_meme_similarity_facts_csv, extract_lda_topics] >> rename_output_files >> sink
+        make_output_folder >> [make_meme_similarity_facts_csv, extract_lda_topics] >> rename_output_files >> sink
 
 
     ######################################## END PIPE_4 ###################################
@@ -463,8 +462,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
         TASK1_FOLDER_NEO4J = 'pipe_1/'
         TASK4_FOLDER_NEO4J = 'pipe_4/'
 
-        create_dag_folder = BashOperator(
-            task_id='create_dag_folder',
+        make_output_folder = BashOperator(
+            task_id='make_output_folder',
             dag=pipeline,
             bash_command=("mkdir -p  {OUTPUT_FOLDER}").format(OUTPUT_FOLDER=OUTPUT_FOLDER),
             trigger_rule='none_failed'
@@ -495,7 +494,7 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
         )
 
 
-        create_dag_folder >> prepare_neo4j_db >> create_indexes
+        make_output_folder >> prepare_neo4j_db >> create_indexes
 
         for node in ['LDATopic', 'Meme', 'Text']:
             create_index = Neo4jOperator(
@@ -801,10 +800,13 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
         )
 
         queries_to_tsv >> [query1, query2, query3, query4]   >> sink
-    # [END howto_task_group_section_5]
+        ######################################## END PIPE_5 ###################################
+
 
 
     end = DummyOperator(task_id='end')
 
     start >> pipe_1 >> pipe_2 >> pipe_3 >> pipe_4 >> pipe_5 >> end
-# [END howto_task_group]
+    # alternative version
+    #start >> [pipe_1 , pipe_2] >> pipe_3 >> end
+    #pipe_1 >> pipe_4 >> pipe_5 >> end
