@@ -806,7 +806,7 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
 
     end = DummyOperator(task_id='end')
 
-    start >> pipe_1 >> pipe_2 >> pipe_3 >> pipe_4 >> pipe_5 >> end
+    #start >> pipe_1 >> pipe_2 >> pipe_3 >> pipe_4 >> pipe_5 >> end
     # alternative version
-    #start >> [pipe_1 , pipe_2] >> pipe_3 >> end
-    #pipe_1 >> pipe_4 >> pipe_5 >> end
+    start >> [pipe_1 , pipe_2] >> pipe_3 >> end
+    pipe_1 >> pipe_4 >> pipe_5 >> end
