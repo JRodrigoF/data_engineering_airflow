@@ -135,6 +135,13 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
     ######################################## START PIPE_2 ###################################
     with TaskGroup("pipe_2", tooltip="Tasks for pipe_2") as pipe_2:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_2/'
+
+        source = DummyOperator(
+            task_id='source',
+            dag=pipeline,
+            trigger_rule='none_failed'
+        )
+
         make_output_folder = BashOperator(
             task_id='make_output_folder',
             dag=pipeline,
@@ -202,7 +209,7 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='none_failed'
         )
 
-        make_output_folder >> Google_Vision_data >> GV_data_to_tsv >> safeness_dim_tsv >> rename_output_files >> sink
+        source >> make_output_folder >> Google_Vision_data >> GV_data_to_tsv >> safeness_dim_tsv >> rename_output_files >> sink
     ######################################## END PIPE_2 ###################################
 
     ######################################## START PIPE_3 ###################################
