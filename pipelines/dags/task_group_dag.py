@@ -128,9 +128,9 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
 
         source >> create_dag_folder >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> rename_output_files >> sink
 
-    # [END howto_task_group_section_1]
+    ######################################## END PIPE_1 ###################################
 
-    # [START howto_task_group_section_2]
+    ######################################## START PIPE_2 ###################################
     with TaskGroup("pipe_2", tooltip="Tasks for pipe_2") as pipe_2:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_2/'
         create_dag_folder = BashOperator(
@@ -201,9 +201,9 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
         )
 
         create_dag_folder >> Google_Vision_data >> GV_data_to_tsv >> safeness_dim_tsv >> rename_output_files >> sink
-    # [END howto_task_group_section_2]
+    ######################################## END PIPE_2 ###################################
 
-    # [START howto_task_group_section_3]
+    ######################################## START PIPE_3 ###################################
 
     with TaskGroup("pipe_3", tooltip="Tasks for pipe_3") as pipe_3:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_3/'
@@ -364,9 +364,10 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
         create_dag_folder >> [date_dim_tsv, status_dim_tsv, origin_dim_tsv, memes_dim_tsv] >> KYM_fact_table_tsv >> db_init >> postgres_db >> populate_db >> sink
 
 
-    # [END howto_task_group_section_3]
+    ######################################## END PIPE_3 ###################################
 
-    # [START howto_task_group_section_4]
+    ######################################## START PIPE_4 ###################################
+
     with TaskGroup("pipe_4", tooltip="Tasks for pipe_4") as pipe_4:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_4/'
         create_dag_folder = BashOperator(
@@ -454,14 +455,14 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
         create_dag_folder >> [make_meme_similarity_facts_csv, extract_lda_topics] >> rename_output_files >> sink
 
 
-    # [END howto_task_group_section_4]
+    ######################################## END PIPE_4 ###################################
 
-    # [START howto_task_group_section_4]
+    ######################################## START PIPE_5 ###################################
     with TaskGroup("pipe_5", tooltip="Tasks for pipe_5") as pipe_5:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_5/'
         TASK1_FOLDER_NEO4J = 'pipe_1/'
         TASK4_FOLDER_NEO4J = 'pipe_4/'
-        
+
         create_dag_folder = BashOperator(
             task_id='create_dag_folder',
             dag=pipeline,
