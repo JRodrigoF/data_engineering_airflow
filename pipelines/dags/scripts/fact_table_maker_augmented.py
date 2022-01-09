@@ -25,7 +25,6 @@ if len(prefix) and not prefix.endswith('_'):
 
 output = args.out
 
-
 dims_folder1 = args.folder1
 dims_folder2 = args.folder2
 dims_folder3 = args.folder3

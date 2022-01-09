@@ -8,8 +8,6 @@ from collections import OrderedDict
 
 from pathlib import Path
 
-
-
 """
 Creates GV meme to safeness relationships table
 """
