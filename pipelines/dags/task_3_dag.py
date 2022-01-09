@@ -154,17 +154,17 @@ postgres_db = PostgresOperator(
 def _postgres_populate_db(output_folder: str, task2_folder: str, postgres_conn_id: str, epoch: str):
     hook = PostgresHook.get_hook(postgres_conn_id)
 
-    for table_name in ['dim_safeness_gv']:
-        tmp_table = f'{output_folder}/temp_{epoch}_{table_name}.tsv'
-        df_temp = pd.read_csv(
-            f'{task2_folder}{table_name}.tsv', sep="\t")
-        df_temp.to_csv(tmp_table, sep="\t", encoding='utf-8', na_rep='None',
-                        header=False, index=False)
-        # hook.run(f"COPY {table_name} FROM '{tmp_table}.tsv' DELIMITER '\t' CSV HEADER")
-        hook.bulk_load(table_name, tmp_table)
-        os.remove(tmp_table)
+    # for table_name in ['dim_safeness_gv']:
+    #     tmp_table = f'{output_folder}/temp_{epoch}_{table_name}.tsv'
+    #     df_temp = pd.read_csv(
+    #         f'{task2_folder}{table_name}.tsv', sep="\t")
+    #     df_temp.to_csv(tmp_table, sep="\t", encoding='utf-8', na_rep='None',
+    #                     header=False, index=False)
+    #     # hook.run(f"COPY {table_name} FROM '{tmp_table}.tsv' DELIMITER '\t' CSV HEADER")
+    #     hook.bulk_load(table_name, tmp_table)
+    #     os.remove(tmp_table)
 
-    tables = ['dim_dates', 'dim_status', 'dim_origins', 'fact_table_memes']
+    tables = ['dim_dates', 'dim_status', 'dim_origins', 'dim_safeness_gv', 'fact_table_memes']
     for table_name in tables:
         tmp_table = f'{output_folder}/temp_{epoch}_{table_name}.tsv'
         df_temp = pd.read_csv(
