@@ -25,7 +25,9 @@ Extract nltk_data.tar.gz
 tar -xf nltk_data.tar.gz
 ```
 
-And this **once**:
+Run this command **once**:
+
+Note: This is important since it sets up the configuration for both Postgres and Neo4j connections so you do not have to do it manually in the UI.
 ```sh
 docker-compose up airflow-init
 ```
@@ -39,7 +41,7 @@ docker-compose up
 
 ### Connections
 
-After it is up, add a new connections:
+Parameters used for Postgres and Neo4j db connections:
 
 **postgres**
 
