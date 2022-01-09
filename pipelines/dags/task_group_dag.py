@@ -455,8 +455,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
 
         # lets use precalculated tsv, as this script runs for ca 7 minutes
         if USE_PRECALCULATED_MEMES_SIMILARITY_DATA:
-            make_meme_similarity_facts_csv = BashOperator(
-                task_id='make_meme_similarity_facts_csv',
+            calculate_memes_similarity = BashOperator(
+                task_id='calculate_memes_similarity',
                 dag=pipeline,
                 bash_command= ("gunzip -c {DATA_FOLDER}precalculated_memes_similarity_score.tsv.gz > {OUTPUT_FOLDER}{epoch}_memes_similarity_score.tsv"
                     ).format(DATA_FOLDER=DATA_FOLDER, OUTPUT_FOLDER=OUTPUT_FOLDER, epoch="{{ execution_date.int_timestamp }}"),
@@ -464,8 +464,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
                 depends_on_past=False,
             )
         else:
-            make_meme_similarity_facts_csv = BashOperator(
-                task_id='make_meme_similarity_facts_csv',
+            calculate_memes_similarity = BashOperator(
+                task_id='calculate_memes_similarity',
                 dag=pipeline,
                 bash_command= ("python "
                     + " {SCRIPTS_FOLDER}memes_similarity_facts.py "
@@ -522,7 +522,7 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='none_failed'
         )
 
-        start >> make_output_folder >> [make_meme_similarity_facts_csv, extract_lda_topics] >> rename_output_files >> end
+        start >> make_output_folder >> [calculate_memes_similarity, extract_lda_topics] >> rename_output_files >> end
 
     ######################################## END PIPE_4 ###################################
 
