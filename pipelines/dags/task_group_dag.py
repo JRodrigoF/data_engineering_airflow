@@ -332,21 +332,15 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
         def _postgres_populate_db(output_folder: str, task2_folder: str, postgres_conn_id: str, epoch: str):
             hook = PostgresHook.get_hook(postgres_conn_id)
 
-            for table_name in ['dim_safeness_gv']:
-                tmp_table = f'{output_folder}/temp_{epoch}_{table_name}.tsv'
-                df_temp = pd.read_csv(
-                    f'{task2_folder}{table_name}.tsv', sep="\t")
-                df_temp.to_csv(tmp_table, sep="\t", encoding='utf-8', na_rep='None',
-                                header=False, index=False)
-                # hook.run(f"COPY {table_name} FROM '{tmp_table}.tsv' DELIMITER '\t' CSV HEADER")
-                hook.bulk_load(table_name, tmp_table)
-                os.remove(tmp_table)
-
-            tables = ['dim_dates', 'dim_status', 'dim_origins', 'fact_table_memes']
+            tables = ['dim_dates', 'dim_status', 'dim_origins', 'dim_safeness_gv', 'fact_table_memes']
             for table_name in tables:
                 tmp_table = f'{output_folder}/temp_{epoch}_{table_name}.tsv'
-                df_temp = pd.read_csv(
-                    f'{output_folder}{epoch}_{table_name}.tsv', sep="\t")
+                if table_name == 'dim_safeness_gv':
+                    df_temp = pd.read_csv(
+                        f'{task2_folder}/{epoch}_{table_name}.tsv', sep="\t")
+                else:
+                    df_temp = pd.read_csv(
+                        f'{output_folder}/{epoch}_{table_name}.tsv', sep="\t")
                 df_temp.to_csv(tmp_table, sep="\t", encoding='utf-8', na_rep='None',
                                 header=False, index=False)
                 # hook.run(f"COPY {table_name} FROM '{tmp_table}.tsv' DELIMITER '\t' CSV HEADER")
@@ -366,6 +360,68 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='all_success',
         )
 
+        def _queries_to_tables(dags_folder: str, output_folder: str,
+            postgres_conn_id: str, query_names: list, epoch = str):
+
+            # hook = PostgresHook.get_hook(postgres_conn_id)
+            conn = PostgresHook(postgres_conn_id=postgres_conn_id).get_conn()
+
+            sql_folder = '{}sql'.format(dags_folder)
+            sql_files = sorted([f for f in os.listdir(sql_folder) if
+                f.startswith('query') and f.endswith('.sql')])
+
+            sql_query_params = {'query_04': {'category': 'racy'}}
+
+            for sql_file in sql_files:
+                file_path = '{}/{}'.format(sql_folder, sql_file)
+                file_preffix = sql_file.replace('.sql', '')
+                with open(file_path, 'r') as f:
+                    sql_query = f.read().replace('\'', '')
+
+                if file_preffix in sql_query_params:
+                    # df = pd.read_sql_query(sql_query, conn, params=sql_query_params[file_preffix])
+                    df = pd.read_sql(sql_query, conn, params={'category': 'racy'})
+                else:
+                    df = pd.read_sql(sql_query, conn)
+                out_file = f'{output_folder}/{epoch}_{file_preffix}.tsv'
+                df.to_csv(out_file, sep="\t", encoding='utf-8', na_rep='None')
+
+        queries_to_tsv = PythonOperator(
+            task_id='queries_to_tsv',
+            dag=pipeline,
+            python_callable=_queries_to_tables,
+            op_kwargs={
+                'dags_folder': DAGS_FOLDER,
+                'output_folder': OUTPUT_FOLDER,
+                'postgres_conn_id': POSTGRES_CONN_ID,
+                'query_names': [],
+                'epoch': "{{ execution_date.int_timestamp }}"},
+            trigger_rule='all_success',
+        )
+
+        make_plots = DummyOperator(
+            task_id='make_plots',
+            dag=pipeline,
+            trigger_rule='none_failed'
+        )
+
+        files = ['fact_table_memes.tsv', 'dim_origins.tsv', 'dim_dates.tsv', \
+            'dim_status.tsv', 'memes_dim.tsv', \
+            'query_01.tsv', 'query_02.tsv', 'query_03.tsv', 'query_04.tsv']
+        commands = []
+        for f in files:
+            commands.append('cp {OUTPUT_FOLDER}{epoch}_%s {OUTPUT_FOLDER}%s '% (f, f))
+        command = " && ".join(commands)
+        rename_output_files = BashOperator(
+            task_id='rename_output_files',
+            dag=pipeline,
+            bash_command=(command).format(
+                    OUTPUT_FOLDER=OUTPUT_FOLDER
+                    , epoch="{{ execution_date.int_timestamp }}"),
+            trigger_rule='all_success',
+            depends_on_past=False
+        )
+
         end = DummyOperator(
             task_id='end',
             dag=pipeline,
@@ -374,8 +430,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
 
         start >> make_output_folder >> [date_dim_tsv, status_dim_tsv, \
             origin_dim_tsv, memes_dim_tsv] >> KYM_fact_table_tsv >> db_init >> \
-                postgres_db >> populate_db >> end
-
+                postgres_db >> populate_db >> queries_to_tsv >> make_plots >> \
+                    rename_output_files >> end
 
     ######################################## END PIPE_3 ###################################
 
