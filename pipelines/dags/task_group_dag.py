@@ -33,14 +33,14 @@ USE_PRECALCULATED_MEMES_SIMILARITY_DATA = 1
 
 # [START howto_task_group]
 with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) as pipeline:
-    start = DummyOperator(task_id="start")
+    source = DummyOperator(task_id="source")
 
     # [START howto_task_group_section_1]
 
     with TaskGroup("pipe_1", tooltip="Tasks for pipe_1") as pipe_1:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_1/'
-        source = DummyOperator(
-            task_id='source',
+        start = DummyOperator(
+            task_id='start',
             dag=pipeline,
             trigger_rule='none_failed'
         )
@@ -122,13 +122,13 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='all_success',
             depends_on_past=False
         )
-        sink = DummyOperator(
-            task_id='sink',
+        end = DummyOperator(
+            task_id='end',
             dag=pipeline,
             trigger_rule='none_failed'
         )
 
-        source >> make_output_folder >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> rename_output_files >> sink
+        start >> make_output_folder >> KYM_data >> remove_duplicates >> filtering >> KYM_data_to_tsv >> rename_output_files >> end
 
     ######################################## END PIPE_1 ###################################
 
@@ -136,8 +136,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
     with TaskGroup("pipe_2", tooltip="Tasks for pipe_2") as pipe_2:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_2/'
 
-        source = DummyOperator(
-            task_id='source',
+        start = DummyOperator(
+            task_id='start',
             dag=pipeline,
             trigger_rule='none_failed'
         )
@@ -154,9 +154,6 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             dag=pipeline,
             trigger_rule='none_failed'
         )
-
-
-
 
         GV_data_to_tsv = BashOperator(
             task_id='GV_data_to_tsv',
@@ -203,19 +200,26 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             depends_on_past=False
         )
 
-        sink = DummyOperator(
-            task_id='sink',
+        end = DummyOperator(
+            task_id='end',
             dag=pipeline,
             trigger_rule='none_failed'
         )
 
-        source >> make_output_folder >> Google_Vision_data >> GV_data_to_tsv >> safeness_dim_tsv >> rename_output_files >> sink
+        start >> make_output_folder >> Google_Vision_data >> GV_data_to_tsv >> safeness_dim_tsv >> rename_output_files >> end
+
     ######################################## END PIPE_2 ###################################
 
     ######################################## START PIPE_3 ###################################
 
     with TaskGroup("pipe_3", tooltip="Tasks for pipe_3") as pipe_3:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_3/'
+
+        start = DummyOperator(
+            task_id='start',
+            dag=pipeline,
+            trigger_rule='none_failed'
+        )
 
         make_output_folder = BashOperator(
             task_id='make_output_folder',
@@ -283,8 +287,6 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='all_success',
             depends_on_past=False,
         )
-
-
 
         KYM_fact_table_tsv = BashOperator(
             task_id='KYM_fact_table_tsv',
@@ -364,14 +366,15 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='all_success',
         )
 
-
-        sink = DummyOperator(
-            task_id='sink',
+        end = DummyOperator(
+            task_id='end',
             dag=pipeline,
             trigger_rule='none_failed'
         )
 
-        make_output_folder >> [date_dim_tsv, status_dim_tsv, origin_dim_tsv, memes_dim_tsv] >> KYM_fact_table_tsv >> db_init >> postgres_db >> populate_db >> sink
+        start >> make_output_folder >> [date_dim_tsv, status_dim_tsv, \
+            origin_dim_tsv, memes_dim_tsv] >> KYM_fact_table_tsv >> db_init >> \
+                postgres_db >> populate_db >> end
 
 
     ######################################## END PIPE_3 ###################################
@@ -380,6 +383,13 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
 
     with TaskGroup("pipe_4", tooltip="Tasks for pipe_4") as pipe_4:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_4/'
+
+        start = DummyOperator(
+            task_id='start',
+            dag=pipeline,
+            trigger_rule='none_failed'
+        )
+
         make_output_folder = BashOperator(
             task_id='make_output_folder',
             dag=pipeline,
@@ -387,10 +397,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='none_failed'
         )
 
-
         # lets use precalculated tsv, as this script runs for ca 7 minutes
         if USE_PRECALCULATED_MEMES_SIMILARITY_DATA:
-
             make_meme_similarity_facts_csv = BashOperator(
                 task_id='make_meme_similarity_facts_csv',
                 dag=pipeline,
@@ -433,7 +441,6 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             depends_on_past=False,
         )
 
-
         files = ['memes_similarity_score.tsv'
             , 'lda_topics.tsv'
             , 'lda_topic_keywords.tsv'
@@ -453,22 +460,28 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             depends_on_past=False
         )
 
-        sink = DummyOperator(
-            task_id='sink',
+        end = DummyOperator(
+            task_id='end',
             dag=pipeline,
             trigger_rule='none_failed'
         )
 
-        make_output_folder >> [make_meme_similarity_facts_csv, extract_lda_topics] >> rename_output_files >> sink
-
+        start >> make_output_folder >> [make_meme_similarity_facts_csv, extract_lda_topics] >> rename_output_files >> end
 
     ######################################## END PIPE_4 ###################################
 
     ######################################## START PIPE_5 ###################################
+
     with TaskGroup("pipe_5", tooltip="Tasks for pipe_5") as pipe_5:
         OUTPUT_FOLDER = DAGS_FOLDER + 'output/pipe_5/'
         TASK1_FOLDER_NEO4J = 'pipe_1/'
         TASK4_FOLDER_NEO4J = 'pipe_4/'
+
+        start = DummyOperator(
+            task_id='start',
+            dag=pipeline,
+            trigger_rule='none_failed'
+        )
 
         make_output_folder = BashOperator(
             task_id='make_output_folder',
@@ -485,7 +498,9 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='all_success',
             depends_on_past=False,
         )
+
         ############## START PIPE_5 SUB_TASK populate_db ########
+
         with TaskGroup("populate_db", tooltip="Tasks for populating Neoj4 db nodes and relations") as populate_neoj4_db:
 
             create_indexes = DummyOperator(
@@ -494,7 +509,6 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
                 trigger_rule='all_success',
                 depends_on_past=False,
             )
-
 
             create_nodes = DummyOperator(
                 task_id='create_nodes',
@@ -516,8 +530,6 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
                 )
                 create_indexes >> create_index
                 create_index >> create_nodes
-
-
 
             create_Memes = Neo4jOperator(
                 task_id='create_Memes',
@@ -675,22 +687,20 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
                     depends_on_past=False,
                 )
 
-
-
             create_relations1 >> [ Meme_childs, Meme_siblings \
                 , Meme_Tags \
                 , Meme_has_common_tags \
                 , Meme_has_similar_desc ] >> create_relations2
 
-
             create_relations2 >> [ LDAtopic_Keywords \
                 , Meme_LDAtopics \
                 , Meme_has_similar_tags ]
+
         ############## END PIPE_5 SUB_TASK populate_db ########
 
         ############## START PIPE_5 SUB_TASK queries_to_tsv ########
-        with TaskGroup("queries_to_tsv", tooltip="Tasks for populating Neoj4 db nodes and relations") as queries_neo4j_to_tsv:
 
+        with TaskGroup("queries_to_tsv", tooltip="Tasks for populating Neoj4 db nodes and relations") as queries_neo4j_to_tsv:
 
             def _make_query(ti, output_folder, query, output_file):
                 global NEO4J_CONN_ID
@@ -710,9 +720,7 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
 
                 with neo4j_hook.session() as session:
                     session.read_transaction(write_to_tsv, output_file)
-
                 #neo4j_hook.close()
-
 
             #MOST TAGS IN COMMON
             query1 = PythonOperator(
@@ -731,7 +739,6 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
                 },
                 depends_on_past=False,
             )
-
 
             #VERY SIMILAR BUT HAVE NO COMMON TAGS
             query2 = PythonOperator(
@@ -757,7 +764,6 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             )
 
             #TOP 10 MEMES WITH MOST DESCENDANTS
-
             query3 = PythonOperator(
                 task_id='query3',
                 dag=pipeline,
@@ -793,24 +799,22 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
                 depends_on_past=False,
             )
             [query1, query2, query3, query4]
+
         ############## END PIPE_5 SUB_TASK queries_to_tsv ########
 
-
-
-        sink = DummyOperator(
-            task_id='sink',
+        end = DummyOperator(
+            task_id='end',
             dag=pipeline,
             trigger_rule='none_failed'
         )
 
-        make_output_folder >> prepare_neo4j_db >> populate_neoj4_db  >> queries_neo4j_to_tsv  >> sink
+        start >> make_output_folder >> prepare_neo4j_db >> populate_neoj4_db  >> queries_neo4j_to_tsv  >> end
+
         ######################################## END PIPE_5 ###################################
 
-
-
-    end = DummyOperator(task_id='end')
+    sink = DummyOperator(task_id='sink')
 
     #start >> pipe_1 >> pipe_2 >> pipe_3 >> pipe_4 >> pipe_5 >> end
     # alternative version
-    start >> [pipe_1 , pipe_2] >> pipe_3 >> end
-    pipe_1 >> pipe_4 >> pipe_5 >> end
+    source >> [pipe_1 , pipe_2] >> pipe_3 >> sink
+    pipe_1 >> pipe_4 >> pipe_5 >> sink
