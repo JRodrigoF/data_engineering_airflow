@@ -1,6 +1,7 @@
 """Example DAG demonstrating the usage of the TaskGroup."""
 import pandas as pd
 import os
+import datetime
 from airflow.models.dag import DAG
 from airflow.operators.bash import BashOperator
 from airflow.operators.dummy import DummyOperator
@@ -31,8 +32,22 @@ NEO4J_CONN_ID = "neo4j_default"
 # lets use by default precalculated meme similarity score tsv, as this script runs for ca 7-10 minutes
 USE_PRECALCULATED_MEMES_SIMILARITY_DATA = 1
 
+default_args_dict = {
+    # cron sintax: * * * * *
+    'start_date': datetime.datetime(2021, 12, 1, 0, 0, 0),
+    'concurrency': 1,
+    'schedule_interval': "0 0 * * *",   # run now
+    'retries': 1,
+    'retry_delay': datetime.timedelta(minutes=5),
+}
+
 # [START howto_task_group]
-with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) as pipeline:
+with DAG(dag_id="pipeline_task_group",
+        # start_date=days_ago(2),
+        default_args=default_args_dict,
+        catchup=False,
+        tags=["memes"]) as pipeline:
+
     source = DummyOperator(task_id="source")
 
     # [START howto_task_group_section_1]
@@ -384,7 +399,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
                 else:
                     df = pd.read_sql(sql_query, conn)
                 out_file = f'{output_folder}/{epoch}_{file_preffix}.tsv'
-                df.to_csv(out_file, sep="\t", encoding='utf-8', na_rep='None')
+                df.to_csv(out_file, sep="\t", encoding='utf-8', na_rep='None',
+                            index=False)
 
         queries_to_tsv = PythonOperator(
             task_id='queries_to_tsv',
@@ -399,15 +415,24 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
             trigger_rule='all_success',
         )
 
-        make_plots = DummyOperator(
+        make_plots = BashOperator(
             task_id='make_plots',
             dag=pipeline,
-            trigger_rule='none_failed'
+            bash_command=("python "
+                        + "{SCRIPTS_FOLDER}queries_to_plots.py "
+                        + "--folder {OUTPUT_FOLDER} "
+                        + "--prefix {epoch} ")
+            .format(SCRIPTS_FOLDER=SCRIPTS_FOLDER,
+                    OUTPUT_FOLDER=OUTPUT_FOLDER,
+                    epoch="{{ execution_date.int_timestamp }}"),
+            trigger_rule='all_success',
+            depends_on_past=False,
         )
 
         files = ['fact_table_memes.tsv', 'dim_origins.tsv', 'dim_dates.tsv', \
             'dim_status.tsv', 'memes_dim.tsv', \
-            'query_01.tsv', 'query_02.tsv', 'query_03.tsv', 'query_04.tsv']
+            'query_01.tsv', 'query_02.tsv', 'query_03.tsv', 'query_04.tsv', \
+            'query_01.png', 'query_02.png', 'query_03.png']
         commands = []
         for f in files:
             commands.append('cp {OUTPUT_FOLDER}{epoch}_%s {OUTPUT_FOLDER}%s '% (f, f))
@@ -591,8 +616,8 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
                 task_id='create_Memes',
                 neo4j_conn_id=NEO4J_CONN_ID,
                 sql= (" USING PERIODIC COMMIT 1000  \n "
-                      +  " LOAD CSV WITH HEADERS FROM \"file:///{TASK1_FOLDER_NEO4J}memes.tsv\"  AS row FIELDTERMINATOR '\t' WITH row \n "
-                      + " MERGE (m:Meme {{Id: row.Id, category:row.category, status:row.details_status, description:row.meta_description, url:row.url}}) "
+                    +  " LOAD CSV WITH HEADERS FROM \"file:///{TASK1_FOLDER_NEO4J}memes.tsv\"  AS row FIELDTERMINATOR '\t' WITH row \n "
+                    + " MERGE (m:Meme {{Id: row.Id, category:row.category, status:row.details_status, description:row.meta_description, url:row.url}}) "
                     ).format(TASK1_FOLDER_NEO4J=TASK1_FOLDER_NEO4J),
                 dag=pipeline,
                 trigger_rule='all_success',
@@ -874,3 +899,5 @@ with DAG(dag_id="pipeline_task_group", start_date=days_ago(2), tags=["memes"]) a
     # alternative version
     source >> [pipe_1 , pipe_2] >> pipe_3 >> sink
     pipe_1 >> pipe_4 >> pipe_5 >> sink
+    # test version
+    # source >> pipe_3 >> sink
