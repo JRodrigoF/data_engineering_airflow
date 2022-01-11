@@ -27,7 +27,7 @@ tar -xf nltk_data.tar.gz
 
 Run this command **once**:
 
-Note: This is important since it sets up the configuration for both Postgres and Neo4j connections so you do not have to do it manually in the UI.
+Note: This is important since it initializes the configuration for both Postgres and Neo4j connections so you do not have to do it manually in the Airflow webserver UI.
 ```sh
 docker-compose up airflow-init
 ```
