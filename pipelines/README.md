@@ -13,7 +13,7 @@ First, get your **id**:
 id -u
 ```
 
-Now edit the **.env** file and swap out 501 for your own.
+Now edit the **.env** file and swap out 1000 for your own.
 
 Run the following command to creat the volumes needed in order to send data to airflow:
 ```sh
