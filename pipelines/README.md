@@ -38,7 +38,7 @@ If the exit code is 0 then it's all good.
 ```sh
 docker-compose up
 ```
-Now you should be able to go to [http://localhost:8080](http://localhost:8080) using your browser and start using the UI
+Once it finishes all the loadings, you should be able to go to [http://localhost:8080](http://localhost:8080) using your browser and start using the UI
 
 ### Connections
 
