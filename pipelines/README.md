@@ -4,7 +4,7 @@
 * Install docker and docker-compose exactly as it is described in the website.
 * **do not do do apt install docker or docker-compose**
 
-## How to spin the webserver up
+## How to spin the Airflow webserver up
 
 ### Prepping
 
@@ -38,6 +38,7 @@ If the exit code is 0 then it's all good.
 ```sh
 docker-compose up
 ```
+Now you should be able to go to [http://localhost:8080](http://localhost:8080) using your browser and start using the UI
 
 ### Connections
 
